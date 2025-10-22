@@ -374,7 +374,7 @@ export default function TicketBoard() {
                           type: ticket.type,
                           assigneeId: ticket.assignee?.id,
                           dueDate: ticket.dueDate,
-                          labels: ticket.labels,
+                          labels: ticket.labels.map(label => typeof label === 'string' ? label : label.name),
                         });
                         setTickets(prev => [...prev, duplicatedTicket]);
                       } catch (error) {
