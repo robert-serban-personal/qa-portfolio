@@ -180,14 +180,6 @@ export default function TicketDetailModal({
     }).format(date);
   };
 
-  const formatDateOnly = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
-  };
-
   if (!isOpen || !currentTicket) return null;
 
   return (
