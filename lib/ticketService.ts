@@ -120,7 +120,10 @@ export class TicketService {
     return tickets.filter(ticket => 
       ticket.title.toLowerCase().includes(lowercaseQuery) ||
       ticket.description.toLowerCase().includes(lowercaseQuery) ||
-      ticket.labels.some(label => label.toLowerCase().includes(lowercaseQuery))
+      ticket.labels.some(label => {
+        const labelName = typeof label === 'string' ? label : label.name;
+        return labelName.toLowerCase().includes(lowercaseQuery);
+      })
     );
   }
 
