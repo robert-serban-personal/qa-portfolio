@@ -1,7 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
 declare global {
-  var prisma: PrismaClient | undefined;
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | null | undefined;
 }
 
 // Check for database URL in multiple environment variables
@@ -12,7 +13,7 @@ const getDatabaseUrl = () => {
 };
 
 // Create Prisma client
-const createPrismaClient = () => {
+const createPrismaClient = (): PrismaClient | null => {
   const databaseUrl = getDatabaseUrl();
   
   if (!databaseUrl) {
@@ -40,9 +41,9 @@ const createPrismaClient = () => {
   }
 };
 
-export const prisma = global.prisma || createPrismaClient();
+export const prisma = global.prisma ?? createPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && prisma) {
   global.prisma = prisma;
 }
 
