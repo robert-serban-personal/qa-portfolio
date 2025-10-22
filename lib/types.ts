@@ -14,6 +14,12 @@ export interface Attachment {
   uploadedAt: Date;
 }
 
+export interface TicketLabel {
+  id: string;
+  name: string;
+  ticketId: string;
+}
+
 export interface Ticket {
   id: string;
   title: string;
@@ -26,7 +32,7 @@ export interface Ticket {
   createdAt: Date;
   updatedAt: Date;
   dueDate?: Date;
-  labels: string[];
+  labels: string[] | TicketLabel[];
   attachments: Attachment[];
 }
 

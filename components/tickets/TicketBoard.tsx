@@ -149,38 +149,8 @@ export default function TicketBoard() {
     loadTickets();
   }, []);
 
-  // Real-time updates - poll every 5 seconds for changes
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        console.log('🔄 Checking for updates...');
-        const allTickets = await TicketService.getAllTickets();
-        
-        // Check if there are any changes by comparing with current state
-        const hasChanges = tickets.length !== allTickets.length || 
-          tickets.some(ticket => {
-            const updatedTicket = allTickets.find(t => t.id === ticket.id);
-            if (!updatedTicket) return true;
-            
-            // Handle both Date objects and string dates
-            const ticketUpdatedAt = ticket.updatedAt instanceof Date ? ticket.updatedAt : new Date(ticket.updatedAt);
-            const updatedTicketUpdatedAt = updatedTicket.updatedAt instanceof Date ? updatedTicket.updatedAt : new Date(updatedTicket.updatedAt);
-            
-            return ticketUpdatedAt.getTime() !== updatedTicketUpdatedAt.getTime();
-          });
-        
-        if (hasChanges) {
-          console.log('🔄 Changes detected, updating tickets...');
-          setTickets(allTickets);
-          setLastUpdateTime(new Date());
-        }
-      } catch (error) {
-        console.error('Error checking for updates:', error);
-      }
-    }, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [tickets]);
+  // Real-time updates disabled to reduce API calls
+  // Updates will happen manually when tickets are created, updated, or deleted
 
   const handleTicketCreated = async () => {
     await loadTickets();
