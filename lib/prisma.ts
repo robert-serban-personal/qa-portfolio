@@ -1,19 +1,18 @@
 import { PrismaClient } from '@prisma/client';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | null | undefined;
-}
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-// Check for database URL in multiple environment variables
+// Get database URL from environment variables
 const getDatabaseUrl = () => {
   return process.env.DATABASE_URL || 
          process.env.POSTGRES_URL || 
          process.env.PRISMA_DATABASE_URL;
 };
 
-// Create Prisma client with better error handling
-const createPrismaClient = (): PrismaClient | null => {
+// Create Prisma client
+const createPrismaClient = () => {
   const databaseUrl = getDatabaseUrl();
   
   if (!databaseUrl) {
@@ -24,12 +23,12 @@ const createPrismaClient = (): PrismaClient | null => {
   
   console.log('Database URL found:', databaseUrl.substring(0, 20) + '...');
   
+  // Ensure DATABASE_URL is set for Prisma
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = databaseUrl;
+  }
+  
   try {
-    // Set DATABASE_URL for Prisma if it's not set
-    if (!process.env.DATABASE_URL) {
-      process.env.DATABASE_URL = databaseUrl;
-    }
-    
     const client = new PrismaClient({
       datasources: {
         db: {
@@ -39,7 +38,6 @@ const createPrismaClient = (): PrismaClient | null => {
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     });
     
-    // Test the connection
     console.log('Prisma client created successfully');
     return client;
   } catch (error) {
@@ -47,7 +45,6 @@ const createPrismaClient = (): PrismaClient | null => {
     console.error('Error details:', {
       message: error instanceof Error ? error.message : 'Unknown error',
       code: error instanceof Error && 'code' in error ? error.code : undefined,
-      stack: error instanceof Error ? error.stack : undefined,
     });
     return null;
   }
@@ -57,7 +54,7 @@ const createPrismaClient = (): PrismaClient | null => {
 let prismaClient: PrismaClient | null = null;
 
 try {
-  prismaClient = global.prisma ?? createPrismaClient();
+  prismaClient = globalForPrisma.prisma ?? createPrismaClient();
 } catch (error) {
   console.error('Failed to initialize Prisma client:', error);
   prismaClient = null;
@@ -66,6 +63,6 @@ try {
 export const prisma = prismaClient;
 
 if (process.env.NODE_ENV !== 'production' && prisma) {
-  global.prisma = prisma;
+  globalForPrisma.prisma = prisma;
 }
 
