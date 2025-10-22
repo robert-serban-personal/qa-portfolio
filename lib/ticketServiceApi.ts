@@ -29,68 +29,45 @@ export class TicketService {
   }
 
   private static getTicketsFromStorage(): Ticket[] {
-    console.log('💾 getTicketsFromStorage called');
-    if (typeof window === 'undefined') {
-      console.log('❌ No window object, returning empty array');
-      return [];
-    }
+    if (typeof window === 'undefined') return [];
     
     const stored = localStorage.getItem(STORAGE_KEY);
-    console.log('💾 Raw stored data:', stored);
-    
-    if (!stored) {
-      console.log('❌ No stored data, returning empty array');
-      return [];
-    }
+    if (!stored) return [];
     
     try {
       const parsed = JSON.parse(stored);
-      console.log('📦 Parsed stored data:', parsed);
-      
-      const processed = parsed.map((ticket: any, index: number) => {
-        console.log(`🎫 Processing ticket ${index}:`, ticket);
-        return {
-          ...ticket,
-          createdAt: this.parseDate(ticket.createdAt),
-          updatedAt: this.parseDate(ticket.updatedAt),
-          dueDate: ticket.dueDate ? this.parseDate(ticket.dueDate) : undefined,
-          attachments: ticket.attachments?.map((att: any) => ({
-            ...att,
-            uploadedAt: this.parseDate(att.uploadedAt)
-          })) || [],
-        };
-      });
-      
-      console.log('✅ Processed tickets:', processed);
-      return processed;
+      return parsed.map((ticket: any) => ({
+        ...ticket,
+        createdAt: this.parseDate(ticket.createdAt),
+        updatedAt: this.parseDate(ticket.updatedAt),
+        dueDate: ticket.dueDate ? this.parseDate(ticket.dueDate) : undefined,
+        attachments: ticket.attachments?.map((att: any) => ({
+          ...att,
+          uploadedAt: this.parseDate(att.uploadedAt)
+        })) || [],
+      }));
     } catch (error) {
-      console.error('❌ Error parsing stored data:', error);
+      console.error('Error parsing stored data:', error);
       return [];
     }
   }
 
   private static parseDate(dateString: string | Date): Date {
-    console.log('🔍 parseDate called with:', { dateString, type: typeof dateString });
-    
     if (!dateString) {
-      console.log('📅 No dateString provided, returning current date');
       return new Date();
     }
     
     if (dateString instanceof Date) {
-      console.log('📅 Already a Date object:', dateString);
       return dateString;
     }
     
-    console.log('📅 Attempting to parse date string:', dateString);
     const date = new Date(dateString);
     
     if (isNaN(date.getTime())) {
-      console.error('❌ Invalid date string:', dateString, 'using current date');
+      console.error('Invalid date string:', dateString, 'using current date');
       return new Date();
     }
     
-    console.log('✅ Successfully parsed date:', date);
     return date;
   }
 
@@ -111,21 +88,15 @@ export class TicketService {
   }
 
   static async getAllTickets(): Promise<Ticket[]> {
-    console.log('🚀 getAllTickets called');
     return this.fetchWithFallback(
       async () => {
-        console.log('🌐 Fetching tickets from API:', `${API_BASE}/tickets`);
         const response = await fetch(`${API_BASE}/tickets`);
         if (!response.ok) throw new Error('Failed to fetch tickets');
         const tickets = await response.json();
-        console.log('📦 Raw tickets from API:', tickets);
         this.saveTicketsToStorage(tickets); // Cache for offline use
         return tickets;
       },
-      () => {
-        console.log('💾 Falling back to local storage');
-        return this.getTicketsFromStorage();
-      }
+      () => this.getTicketsFromStorage()
     );
   }
 
@@ -289,55 +260,120 @@ export class TicketService {
   }
 
   static async addAttachment(ticketId: string, file: File): Promise<Ticket | null> {
-    // For now, we'll use local storage for attachments
-    // In production, you'd upload to a file storage service
-    const tickets = this.getTicketsFromStorage();
-    const ticketIndex = tickets.findIndex(ticket => ticket.id === ticketId);
+    return this.fetchWithFallback(
+      async () => {
+        // For now, we'll simulate API attachment upload
+        // In production, you'd upload to a file storage service and get a URL
+        const mockAttachment = {
+          id: this.generateId(),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: URL.createObjectURL(file),
+          uploadedAt: new Date().toISOString(),
+        };
+        
+        // Update the ticket with the new attachment
+        const response = await fetch(`${API_BASE}/tickets/${ticketId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            attachments: [mockAttachment]
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to add attachment');
+        const ticket = await response.json();
+        
+        // Update local cache
+        const tickets = this.getTicketsFromStorage();
+        const index = tickets.findIndex(t => t.id === ticketId);
+        if (index !== -1) {
+          tickets[index] = ticket;
+          this.saveTicketsToStorage(tickets);
+        }
+        
+        return ticket;
+      },
+      () => {
+        // Local storage fallback
+        const tickets = this.getTicketsFromStorage();
+        const ticketIndex = tickets.findIndex(ticket => ticket.id === ticketId);
 
-    if (ticketIndex === -1) return null;
+        if (ticketIndex === -1) return null;
 
-    const attachment: Attachment = {
-      id: this.generateId(),
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      url: URL.createObjectURL(file),
-      uploadedAt: new Date(),
-    };
+        const attachment: Attachment = {
+          id: this.generateId(),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: URL.createObjectURL(file),
+          uploadedAt: new Date(),
+        };
 
-    const updatedTicket: Ticket = {
-      ...tickets[ticketIndex],
-      attachments: [...tickets[ticketIndex].attachments, attachment],
-      updatedAt: new Date(),
-    };
+        const updatedTicket: Ticket = {
+          ...tickets[ticketIndex],
+          attachments: [...tickets[ticketIndex].attachments, attachment],
+          updatedAt: new Date(),
+        };
 
-    tickets[ticketIndex] = updatedTicket;
-    this.saveTicketsToStorage(tickets);
-    return updatedTicket;
+        tickets[ticketIndex] = updatedTicket;
+        this.saveTicketsToStorage(tickets);
+        return updatedTicket;
+      }
+    );
   }
 
   static async removeAttachment(ticketId: string, attachmentId: string): Promise<Ticket | null> {
-    const tickets = this.getTicketsFromStorage();
-    const ticketIndex = tickets.findIndex(ticket => ticket.id === ticketId);
+    return this.fetchWithFallback(
+      async () => {
+        // For now, we'll simulate API attachment removal
+        const response = await fetch(`${API_BASE}/tickets/${ticketId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            removeAttachmentId: attachmentId
+          }),
+        });
+        
+        if (!response.ok) throw new Error('Failed to remove attachment');
+        const ticket = await response.json();
+        
+        // Update local cache
+        const tickets = this.getTicketsFromStorage();
+        const index = tickets.findIndex(t => t.id === ticketId);
+        if (index !== -1) {
+          tickets[index] = ticket;
+          this.saveTicketsToStorage(tickets);
+        }
+        
+        return ticket;
+      },
+      () => {
+        // Local storage fallback
+        const tickets = this.getTicketsFromStorage();
+        const ticketIndex = tickets.findIndex(ticket => ticket.id === ticketId);
 
-    if (ticketIndex === -1) return null;
+        if (ticketIndex === -1) return null;
 
-    const ticket = tickets[ticketIndex];
-    const attachment = ticket.attachments.find(att => att.id === attachmentId);
-    
-    if (attachment) {
-      URL.revokeObjectURL(attachment.url);
-    }
+        const ticket = tickets[ticketIndex];
+        const attachment = ticket.attachments.find(att => att.id === attachmentId);
+        
+        if (attachment) {
+          URL.revokeObjectURL(attachment.url);
+        }
 
-    const updatedTicket: Ticket = {
-      ...ticket,
-      attachments: ticket.attachments.filter(att => att.id !== attachmentId),
-      updatedAt: new Date(),
-    };
+        const updatedTicket: Ticket = {
+          ...ticket,
+          attachments: ticket.attachments.filter(att => att.id !== attachmentId),
+          updatedAt: new Date(),
+        };
 
-    tickets[ticketIndex] = updatedTicket;
-    this.saveTicketsToStorage(tickets);
-    return updatedTicket;
+        tickets[ticketIndex] = updatedTicket;
+        this.saveTicketsToStorage(tickets);
+        return updatedTicket;
+      }
+    );
   }
 
   private static generateId(): string {

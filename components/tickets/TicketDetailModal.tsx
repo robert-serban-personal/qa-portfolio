@@ -54,26 +54,21 @@ export default function TicketDetailModal({
   }, [ticket]);
 
   const formatDateOnly = (dateInput: string | Date) => {
-    console.log('📅 TicketDetailModal formatDateOnly called with:', dateInput, 'type:', typeof dateInput);
     try {
       // Convert string to Date object if needed
       const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
       
       // Check if the date is valid
       if (isNaN(date.getTime())) {
-        console.error('❌ Invalid date after conversion:', dateInput);
         return 'Invalid Date';
       }
       
-      const formatted = new Intl.DateTimeFormat('en-US', {
+      return new Intl.DateTimeFormat('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
       }).format(date);
-      console.log('✅ TicketDetailModal formatDateOnly result:', formatted);
-      return formatted;
     } catch (error) {
-      console.error('❌ TicketDetailModal formatDateOnly error:', error, 'dateInput:', dateInput);
       return 'Invalid Date';
     }
   };

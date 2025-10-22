@@ -18,10 +18,6 @@ import {
   useSensors,
   useDroppable,
 } from '@dnd-kit/core';
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
 
 const statusColumns: { status: TicketStatus; title: string; color: string }[] = [
   { status: 'To Do', title: 'To Do', color: 'bg-slate-500/20' },
@@ -42,14 +38,16 @@ function DroppableColumn({
   onTicketClick: (ticket: Ticket) => void;
   onStatusChange: (ticket: Ticket, newStatus: TicketStatus) => void;
 }) {
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: column.status,
   });
 
   return (
     <div
       ref={setNodeRef}
-      className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
+      className={`bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4 transition-colors ${
+        isOver ? 'bg-slate-700/50 border-emerald-400/50' : ''
+      }`}
     >
       {/* Column Header */}
       <div className="flex items-center justify-between mb-4">
@@ -64,16 +62,42 @@ function DroppableColumn({
 
       {/* Tickets */}
       <div className="space-y-3 min-h-[200px]">
-        <SortableContext items={tickets.map(t => t.id)} strategy={verticalListSortingStrategy}>
-          {tickets.map(ticket => (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              onClick={() => onTicketClick(ticket)}
-              onStatusChange={(newStatus) => onStatusChange(ticket, newStatus)}
-            />
-          ))}
-        </SortableContext>
+        {tickets.map(ticket => (
+          <TicketCard
+            key={ticket.id}
+            ticket={ticket}
+            onClick={() => onTicketClick(ticket)}
+            onStatusChange={(newStatus) => onStatusChange(ticket, newStatus)}
+            onEdit={(ticket) => {
+              setSelectedTicket(ticket);
+              setIsDetailModalOpen(true);
+            }}
+            onDelete={async (ticket) => {
+              try {
+                await TicketService.deleteTicket(ticket.id);
+                setTickets(prev => prev.filter(t => t.id !== ticket.id));
+              } catch (error) {
+                console.error('Error deleting ticket:', error);
+              }
+            }}
+            onDuplicate={async (ticket) => {
+              try {
+                const duplicatedTicket = await TicketService.createTicket({
+                  title: `${ticket.title} (Copy)`,
+                  description: ticket.description,
+                  priority: ticket.priority,
+                  type: ticket.type,
+                  assigneeId: ticket.assignee?.id,
+                  dueDate: ticket.dueDate,
+                  labels: ticket.labels,
+                });
+                setTickets(prev => [...prev, duplicatedTicket]);
+              } catch (error) {
+                console.error('Error duplicating ticket:', error);
+              }
+            }}
+          />
+        ))}
         
         {tickets.length === 0 && (
           <div className="text-center py-8 text-slate-500">
@@ -106,30 +130,21 @@ export default function TicketBoard() {
   );
 
   const loadTickets = async () => {
-    console.log('🎫 TicketBoard loadTickets called');
     setIsLoading(true);
     try {
-      console.log('🌐 Calling TicketService.getAllTickets()');
       const allTickets = await TicketService.getAllTickets();
-      console.log('📦 Received tickets:', allTickets);
-      
-      console.log('👥 Calling TicketService.getAllUsers()');
       const allUsers = await TicketService.getAllUsers();
-      console.log('👥 Received users:', allUsers);
       
-      console.log('✅ Setting tickets and users state');
       setTickets(allTickets);
       setUsers(allUsers);
     } catch (error) {
-      console.error('❌ Error loading tickets:', error);
+      console.error('Error loading tickets:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleStatusChange = async (ticket: Ticket, newStatus: TicketStatus) => {
-    console.log('🔄 handleStatusChange called:', ticket.id, '->', newStatus);
-    
     // Optimistically update the UI
     setTickets(prev => prev.map(t => 
       t.id === ticket.id ? { ...t, status: newStatus } : t
@@ -138,9 +153,8 @@ export default function TicketBoard() {
     // Update in the backend
     try {
       await TicketService.updateTicket(ticket.id, { status: newStatus });
-      console.log('✅ Status updated successfully');
     } catch (error) {
-      console.error('❌ Error updating ticket status:', error);
+      console.error('Error updating ticket status:', error);
       // Revert the optimistic update on error
       setTickets(prev => prev.map(t => 
         t.id === ticket.id ? { ...t, status: ticket.status } : t

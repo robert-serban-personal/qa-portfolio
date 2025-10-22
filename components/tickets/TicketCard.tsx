@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { HiTag, HiUser, HiCalendar, HiDotsVertical, HiPaperClip } from 'react-icons/hi';
+import { HiTag, HiUser, HiCalendar, HiDotsVertical, HiPaperClip, HiPencil, HiTrash, HiDuplicate } from 'react-icons/hi';
 import { Ticket, TicketPriority, TicketStatus } from '@/lib/types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -10,6 +11,9 @@ interface TicketCardProps {
   ticket: Ticket;
   onClick: () => void;
   onStatusChange: (status: TicketStatus) => void;
+  onEdit?: (ticket: Ticket) => void;
+  onDelete?: (ticket: Ticket) => void;
+  onDuplicate?: (ticket: Ticket) => void;
 }
 
 const priorityColors = {
@@ -26,7 +30,27 @@ const statusColors = {
   'Done': 'bg-emerald-500/20 text-emerald-400 border-emerald-400/30',
 };
 
-export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCardProps) {
+export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, onDelete, onDuplicate }: TicketCardProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+  
   const {
     attributes,
     listeners,
@@ -42,46 +66,30 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
   };
 
   const formatDate = (dateInput: string | Date) => {
-    console.log('📅 formatDate called with:', dateInput, 'type:', typeof dateInput);
     try {
       // Convert string to Date object if needed
       const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
       
       // Check if the date is valid
       if (isNaN(date.getTime())) {
-        console.error('❌ Invalid date after conversion:', dateInput);
         return 'Invalid Date';
       }
       
-      const formatted = new Intl.DateTimeFormat('en-US', {
+      return new Intl.DateTimeFormat('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric'
       }).format(date);
-      console.log('✅ formatDate result:', formatted);
-      return formatted;
     } catch (error) {
-      console.error('❌ formatDate error:', error, 'dateInput:', dateInput);
       return 'Invalid Date';
     }
   };
 
   const isOverdue = ticket.dueDate && (() => {
-    console.log('🔍 TicketCard checking overdue for ticket:', ticket.id, 'dueDate:', ticket.dueDate);
     try {
       const dueDate = new Date(ticket.dueDate);
-      console.log('📅 Parsed dueDate:', dueDate);
-      const isValid = !isNaN(dueDate.getTime());
-      console.log('✅ Date is valid:', isValid);
-      if (isValid) {
-        const now = new Date();
-        const isOverdue = now > dueDate;
-        console.log('⏰ Is overdue:', isOverdue, 'now:', now, 'dueDate:', dueDate);
-        return isOverdue;
-      }
-      return false;
-    } catch (error) {
-      console.error('❌ Error checking overdue:', error);
+      return !isNaN(dueDate.getTime()) && new Date() > dueDate;
+    } catch {
       return false;
     }
   })();
@@ -108,15 +116,65 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
             {ticket.description}
           </p>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            // Handle menu actions
-          }}
-          className="text-slate-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
-        >
-          <HiDotsVertical className="w-4 h-4" />
-        </button>
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            className="text-slate-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+          >
+            <HiDotsVertical className="w-4 h-4" />
+          </button>
+          
+          {isMenuOpen && (
+            <div className="absolute right-0 top-6 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-10 min-w-[120px]">
+              <div className="py-1">
+                {onEdit && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit(ticket);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"
+                  >
+                    <HiPencil className="w-4 h-4" />
+                    Edit
+                  </button>
+                )}
+                {onDuplicate && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDuplicate(ticket);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"
+                  >
+                    <HiDuplicate className="w-4 h-4" />
+                    Duplicate
+                  </button>
+                )}
+                {onDelete && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (confirm('Are you sure you want to delete this ticket?')) {
+                        onDelete(ticket);
+                      }
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-2"
+                  >
+                    <HiTrash className="w-4 h-4" />
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Priority and Status */}
@@ -161,10 +219,7 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
           {ticket.dueDate && (
             <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : ''}`}>
               <HiCalendar className="w-3 h-3" />
-              <span>{(() => {
-                console.log('🎯 Rendering dueDate:', ticket.dueDate, 'type:', typeof ticket.dueDate);
-                return formatDate(ticket.dueDate);
-              })()}</span>
+              <span>{formatDate(ticket.dueDate)}</span>
             </div>
           )}
           {ticket.attachments.length > 0 && (
@@ -174,10 +229,7 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
             </div>
           )}
         </div>
-        <span>{(() => {
-          console.log('🎯 Rendering createdAt:', ticket.createdAt, 'type:', typeof ticket.createdAt);
-          return formatDate(ticket.createdAt);
-        })()}</span>
+        <span>{formatDate(ticket.createdAt)}</span>
       </div>
 
       {/* Status Change Dropdown (appears on hover) */}
