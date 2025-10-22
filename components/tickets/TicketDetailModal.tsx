@@ -70,9 +70,9 @@ export default function TicketDetailModal({
   };
 
   const handleSave = () => {
-    if (!ticket) return;
+    if (!currentTicket) return;
 
-    const updatedTicket = TicketService.updateTicket(ticket.id, formData);
+    const updatedTicket = TicketService.updateTicket(currentTicket.id, formData);
     if (updatedTicket) {
       onTicketUpdated();
       setIsEditing(false);
@@ -80,10 +80,10 @@ export default function TicketDetailModal({
   };
 
   const handleDelete = () => {
-    if (!ticket) return;
+    if (!currentTicket) return;
     
     if (confirm('Are you sure you want to delete this ticket?')) {
-      TicketService.deleteTicket(ticket.id);
+      TicketService.deleteTicket(currentTicket.id);
       onTicketDeleted();
       onClose();
     }
@@ -262,7 +262,7 @@ export default function TicketDetailModal({
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {ticket.labels.map(label => (
+                    {currentTicket.labels.map(label => (
                       <span
                         key={label}
                         className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm border border-emerald-400/30"
@@ -283,7 +283,7 @@ export default function TicketDetailModal({
                 <label className="block text-slate-300 mb-2 font-medium">Status</label>
                 {isEditing ? (
                   <select
-                    value={formData.status || ticket.status}
+                    value={formData.status || currentTicket.status}
                     onChange={(e) => handleInputChange('status', e.target.value as TicketStatus)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
                   >
@@ -294,7 +294,7 @@ export default function TicketDetailModal({
                   </select>
                 ) : (
                   <span className="px-3 py-2 bg-slate-700/50 text-white rounded-lg">
-                    {ticket.status}
+                    {currentTicket.status}
                   </span>
                 )}
               </div>
@@ -304,7 +304,7 @@ export default function TicketDetailModal({
                 <label className="block text-slate-300 mb-2 font-medium">Priority</label>
                 {isEditing ? (
                   <select
-                    value={formData.priority || ticket.priority}
+                    value={formData.priority || currentTicket.priority}
                     onChange={(e) => handleInputChange('priority', e.target.value as TicketPriority)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
                   >
@@ -315,7 +315,7 @@ export default function TicketDetailModal({
                   </select>
                 ) : (
                   <span className="px-3 py-2 bg-slate-700/50 text-white rounded-lg">
-                    {ticket.priority}
+                    {currentTicket.priority}
                   </span>
                 )}
               </div>
@@ -325,7 +325,7 @@ export default function TicketDetailModal({
                 <label className="block text-slate-300 mb-2 font-medium">Type</label>
                 {isEditing ? (
                   <select
-                    value={formData.type || ticket.type}
+                    value={formData.type || currentTicket.type}
                     onChange={(e) => handleInputChange('type', e.target.value as TicketType)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
                   >
@@ -337,7 +337,7 @@ export default function TicketDetailModal({
                   </select>
                 ) : (
                   <span className="px-3 py-2 bg-slate-700/50 text-white rounded-lg">
-                    {ticket.type}
+                    {currentTicket.type}
                   </span>
                 )}
               </div>
@@ -360,7 +360,7 @@ export default function TicketDetailModal({
                   <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg">
                     <HiUser className="w-4 h-4 text-slate-400" />
                     <span className="text-white">
-                      {ticket.assignee ? ticket.assignee.name : 'Unassigned'}
+                      {currentTicket.assignee ? currentTicket.assignee.name : 'Unassigned'}
                     </span>
                   </div>
                 )}
@@ -385,7 +385,7 @@ export default function TicketDetailModal({
                   <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg">
                     <HiCalendar className="w-4 h-4 text-slate-400" />
                     <span className="text-white">
-                      {ticket.dueDate ? formatDateOnly(ticket.dueDate) : 'No due date'}
+                      {currentTicket.dueDate ? formatDateOnly(currentTicket.dueDate) : 'No due date'}
                     </span>
                   </div>
                 )}
@@ -454,11 +454,11 @@ export default function TicketDetailModal({
               <div className="space-y-3 pt-4 border-t border-slate-700">
                 <div>
                   <label className="block text-slate-400 text-sm mb-1">Created</label>
-                  <span className="text-slate-300 text-sm">{formatDate(ticket.createdAt)}</span>
+                  <span className="text-slate-300 text-sm">{formatDate(currentTicket.createdAt)}</span>
                 </div>
                 <div>
                   <label className="block text-slate-400 text-sm mb-1">Last Updated</label>
-                  <span className="text-slate-300 text-sm">{formatDate(ticket.updatedAt)}</span>
+                  <span className="text-slate-300 text-sm">{formatDate(currentTicket.updatedAt)}</span>
                 </div>
               </div>
             </div>
