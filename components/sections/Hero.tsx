@@ -57,7 +57,7 @@ export default function Hero() {
             transition={{ delay: 0.5 }}
             className="text-emerald-400 text-lg md:text-xl font-medium mb-4 tracking-wider"
           >
-            AUTOMATION QA ENGINEER
+            ROBERT SERBAN
           </motion.p>
 
           <motion.h1
@@ -66,10 +66,10 @@ export default function Hero() {
             transition={{ delay: 0.7 }}
             className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 leading-tight"
           >
-            Crafting Quality
+            Quality Engineering
             <br />
             <span className="bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Through Code
+              Excellence
             </span>
           </motion.h1>
 
@@ -79,9 +79,9 @@ export default function Hero() {
             transition={{ delay: 0.9 }}
             className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
           >
-            Ensuring flawless user experiences through intelligent test
-            automation, comprehensive quality strategies, and continuous
-            improvement.
+            Senior QA Engineer specializing in test automation frameworks, 
+            API testing, and DevOps integration. Delivering robust, scalable solutions 
+            that ensure exceptional software quality and user experiences.
           </motion.p>
 
           <motion.div

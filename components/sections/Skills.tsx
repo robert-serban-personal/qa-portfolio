@@ -15,21 +15,22 @@ import {
   SiPostman,
   SiJira,
   SiPytest,
-  SiKubernetes,
   SiGithubactions,
   SiTestinglibrary,
+  SiTestng,
 } from 'react-icons/si';
 import { DiJava } from 'react-icons/di';
 import { VscJson, VscCode } from 'react-icons/vsc';
 
 const skillCategories = [
   {
-    name: 'Automation Frameworks',
+    name: 'Test Automation Frameworks',
     skills: [
       { name: 'Selenium', icon: SiSelenium, color: '#43B02A' },
       { name: 'Cypress', icon: SiCypress, color: '#17202C' },
       { name: 'Playwright', icon: VscCode, color: '#2EAD33' },
       { name: 'Pytest', icon: SiPytest, color: '#0A9EDC' },
+      { name: 'TestNG', icon: SiTestng, color: '#FF6C37' },
       { name: 'Testing Library', icon: SiTestinglibrary, color: '#E33332' },
     ],
   },
@@ -48,12 +49,11 @@ const skillCategories = [
       { name: 'Jenkins', icon: SiJenkins, color: '#D24939' },
       { name: 'GitHub Actions', icon: SiGithubactions, color: '#2088FF' },
       { name: 'Docker', icon: SiDocker, color: '#2496ED' },
-      { name: 'Kubernetes', icon: SiKubernetes, color: '#326CE5' },
       { name: 'Git', icon: SiGit, color: '#F05032' },
     ],
   },
   {
-    name: 'Testing Tools',
+    name: 'Testing Tools & Platforms',
     skills: [
       { name: 'Postman', icon: SiPostman, color: '#FF6C37' },
       { name: 'Jira', icon: SiJira, color: '#0052CC' },
@@ -163,7 +163,7 @@ export default function Skills() {
             { label: 'Years Experience', value: '5+' },
             { label: 'Projects Completed', value: '50+' },
             { label: 'Tests Automated', value: '1000+' },
-            { label: 'Bugs Prevented', value: '∞' },
+            { label: 'Quality Metrics Improved', value: '90%' },
           ].map((stat, index) => (
             <motion.div
               key={stat.label}

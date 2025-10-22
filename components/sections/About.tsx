@@ -6,12 +6,13 @@ import { useRef } from 'react';
 import { HiCheckCircle } from 'react-icons/hi';
 
 const highlights = [
+  'Senior QA Engineer with 5+ years of experience',
   'Expert in test automation frameworks (Selenium, Cypress, Playwright)',
-  'Proficient in API testing and performance testing',
-  'Strong programming skills in Python, JavaScript, and TypeScript',
-  'Experience with CI/CD pipelines and DevOps practices',
+  'Proficient in API testing, performance testing, and DevOps integration',
+  'Strong programming skills in Python, JavaScript, TypeScript, and Java',
+  'Experience with CI/CD pipelines, Docker, and cloud platforms',
   'Certified in ISTQB and Agile methodologies',
-  'Passionate about quality-driven development',
+  'Passionate about quality-driven development and continuous improvement',
 ];
 
 export default function About() {
@@ -51,17 +52,12 @@ export default function About() {
             className="relative"
           >
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 backdrop-blur-sm border border-emerald-500/20">
-              {/* Placeholder for profile image */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-48 h-48 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-white text-6xl font-bold">
-                    QA
-                  </div>
-                  <p className="text-slate-400 text-sm">
-                    Replace with your photo
-                  </p>
-                </div>
-              </div>
+              {/* Professional photo */}
+              <img 
+                src="/robert-serban-photo.jpg" 
+                alt="Robert Serban - Senior QA Engineer"
+                className="w-full h-full object-cover object-center"
+              />
 
               {/* Decorative elements */}
               <motion.div
@@ -96,20 +92,22 @@ export default function About() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
-              Passionate About Quality Engineering
+              Robert Serban - Senior QA Engineer
             </h3>
             <div className="space-y-4 text-slate-300 text-lg leading-relaxed mb-8">
               <p>
-                As an Automation QA Engineer, I bring together technical
-                expertise and a deep commitment to quality. With years of
-                experience in software testing and automation, I've helped teams
-                deliver robust, reliable applications that users love.
+                As a Senior QA Engineer, I combine deep technical expertise 
+                with strategic thinking to deliver exceptional software quality. With 
+                over 5 years of experience in software testing and quality engineering, 
+                I've successfully led teams in implementing comprehensive testing strategies 
+                that ensure robust, reliable applications.
               </p>
               <p>
-                My approach combines modern testing frameworks, intelligent
-                automation strategies, and collaborative teamwork to ensure
-                every release meets the highest standards of quality and
-                performance.
+                My professional approach integrates cutting-edge automation frameworks, 
+                DevOps best practices, and collaborative methodologies to create scalable 
+                testing solutions. I'm passionate about mentoring teams and driving 
+                continuous improvement in quality processes across the entire software 
+                development lifecycle.
               </p>
             </div>
 

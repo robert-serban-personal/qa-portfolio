@@ -10,54 +10,54 @@ const projects = [
   {
     title: 'E-Commerce Test Automation Suite',
     description:
-      'Comprehensive end-to-end testing framework for an e-commerce platform using Cypress and TypeScript. Includes visual regression testing and API validation.',
+      'Developed comprehensive end-to-end testing framework for e-commerce platform using Cypress and TypeScript. Implemented automated test cases covering user journeys, payment flows, and API validation with detailed reporting.',
     technologies: ['Cypress', 'TypeScript', 'GitHub Actions', 'Allure Reports'],
-    githubUrl: 'https://github.com/yourusername/ecommerce-automation',
+    githubUrl: 'https://github.com/robertserban/ecommerce-automation',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   },
   {
-    title: 'API Testing Framework',
+    title: 'REST API Testing Framework',
     description:
-      'Python-based REST API testing framework with pytest. Features data-driven testing, extensive reporting, and CI/CD integration with Jenkins.',
+      'Built Python-based REST API testing framework using pytest and requests library. Features data-driven testing, comprehensive test reporting, and integration with CI/CD pipelines for automated validation.',
     technologies: ['Python', 'Pytest', 'Requests', 'Jenkins', 'Docker'],
-    githubUrl: 'https://github.com/yourusername/api-testing-framework',
+    githubUrl: 'https://github.com/robertserban/api-testing-framework',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
   },
   {
-    title: 'Mobile App Automation',
+    title: 'Web Application Test Automation',
     description:
-      'Automated testing solution for iOS and Android apps using Appium. Includes parallel execution, cloud device testing, and detailed analytics.',
-    technologies: ['Appium', 'Java', 'TestNG', 'BrowserStack'],
-    githubUrl: 'https://github.com/yourusername/mobile-automation',
+      'Created automated testing solution for web applications using Selenium WebDriver with Java and TestNG. Implemented page object model pattern, parallel test execution, and cross-browser compatibility testing.',
+    technologies: ['Selenium', 'Java', 'TestNG', 'Maven', 'Docker'],
+    githubUrl: 'https://github.com/robertserban/web-automation',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
   },
   {
     title: 'Performance Testing Suite',
     description:
-      'Load and performance testing framework using JMeter and K6. Monitors application performance, identifies bottlenecks, and generates comprehensive reports.',
-    technologies: ['JMeter', 'K6', 'Grafana', 'InfluxDB'],
-    githubUrl: 'https://github.com/yourusername/performance-testing',
+      'Developed performance testing framework using JMeter for load testing web applications. Created test scenarios for different user loads, monitored response times, and generated comprehensive performance reports.',
+    technologies: ['JMeter', 'Docker', 'GitHub Actions', 'Postman'],
+    githubUrl: 'https://github.com/robertserban/performance-testing',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
   },
   {
-    title: 'CI/CD Pipeline Automation',
+    title: 'CI/CD Pipeline Integration',
     description:
-      'Complete CI/CD pipeline setup with automated testing at every stage. Includes integration tests, security scans, and deployment automation.',
-    technologies: ['GitHub Actions', 'Docker', 'Kubernetes', 'SonarQube'],
-    githubUrl: 'https://github.com/yourusername/cicd-automation',
+      'Set up automated testing pipeline using GitHub Actions and Docker. Integrated automated test execution into deployment process, ensuring quality gates and preventing deployment of broken code.',
+    technologies: ['GitHub Actions', 'Docker', 'Jenkins', 'Git'],
+    githubUrl: 'https://github.com/robertserban/cicd-automation',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
   },
   {
     title: 'Visual Regression Testing',
     description:
-      'Automated visual regression testing tool that captures screenshots and compares them across different browsers and viewports.',
-    technologies: ['Playwright', 'Percy', 'JavaScript', 'GitHub Actions'],
-    githubUrl: 'https://github.com/yourusername/visual-regression',
+      'Implemented visual regression testing using Playwright and JavaScript. Automated screenshot comparison across different browsers and viewports to detect UI changes and ensure visual consistency.',
+    technologies: ['Playwright', 'JavaScript', 'GitHub Actions', 'Docker'],
+    githubUrl: 'https://github.com/robertserban/visual-regression',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
   },
@@ -177,7 +177,7 @@ export default function Portfolio() {
             Want to see more of my work? Check out my GitHub profile
           </p>
           <a
-            href="https://github.com/yourusername"
+            href="https://github.com/robertserban"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-full font-semibold hover:shadow-xl hover:shadow-emerald-500/50 transition-all duration-300 hover:scale-105"
