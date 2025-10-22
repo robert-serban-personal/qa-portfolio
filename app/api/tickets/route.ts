@@ -60,9 +60,8 @@ export async function POST(request: NextRequest) {
         dueDate: dueDate ? new Date(dueDate) : null,
         reporterId: reporter.id,
         labels: {
-          connectOrCreate: labels?.map((label: string) => ({
-            where: { name: label },
-            create: { name: label },
+          create: labels?.map((label: string) => ({
+            name: label,
           })) || [],
         },
       },
@@ -77,6 +76,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(ticket);
   } catch (error) {
     console.error('Error creating ticket:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? error.code : undefined,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     
     // Provide more specific error information
     if (error instanceof Error && 'code' in error && error.code === 'P2021') {
@@ -87,7 +91,8 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ 
       error: 'Failed to create ticket', 
-      details: error instanceof Error ? error.message : 'Unknown error'
+      details: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? error.code : undefined,
     }, { status: 500 });
   }
 }
