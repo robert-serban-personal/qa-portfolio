@@ -31,7 +31,9 @@ export async function POST(request: NextRequest) {
   try {
     // If no database is available, return error
     if (!prisma) {
-      return NextResponse.json({ error: 'Database not available. Please set up DATABASE_URL.' }, { status: 503 });
+      return NextResponse.json({ 
+        error: 'Database not available. Please set up DATABASE_URL and run database migrations.' 
+      }, { status: 503 });
     }
 
     const body = await request.json();
@@ -52,13 +54,16 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        priority: priority || 'MEDIUM',
-        type: type || 'TASK',
+        priority: priority || 'Medium',
+        type: type || 'Task',
         assigneeId: assigneeId || null,
         dueDate: dueDate ? new Date(dueDate) : null,
         reporterId: reporter.id,
         labels: {
-          create: labels?.map((label: string) => ({ name: label })) || [],
+          connectOrCreate: labels?.map((label: string) => ({
+            where: { name: label },
+            create: { name: label },
+          })) || [],
         },
       },
       include: {
@@ -72,7 +77,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(ticket);
   } catch (error) {
     console.error('Error creating ticket:', error);
-    return NextResponse.json({ error: 'Failed to create ticket' }, { status: 500 });
+    
+    // Provide more specific error information
+    if (error.code === 'P2021') {
+      return NextResponse.json({ 
+        error: 'Database tables do not exist. Please run database migrations first.' 
+      }, { status: 503 });
+    }
+    
+    return NextResponse.json({ 
+      error: 'Failed to create ticket', 
+      details: error.message 
+    }, { status: 500 });
   }
 }
 
