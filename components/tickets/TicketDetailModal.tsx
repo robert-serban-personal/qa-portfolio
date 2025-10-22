@@ -153,6 +153,8 @@ export default function TicketDetailModal({
         
         if (updatedTicket) {
           console.log('📎 Setting currentTicket state...');
+          console.log('📎 Updated ticket attachments:', updatedTicket.attachments);
+          console.log('📎 Number of attachments in updated ticket:', updatedTicket.attachments?.length || 0);
           setCurrentTicket(updatedTicket);
           console.log('📎 Calling onTicketUpdated...');
           onTicketUpdated();

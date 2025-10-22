@@ -297,6 +297,8 @@ export class TicketService {
         
         const ticket = await response.json();
         console.log('📎 API returned ticket:', ticket);
+        console.log('📎 Ticket attachments:', ticket.attachments);
+        console.log('📎 Number of attachments:', ticket.attachments?.length || 0);
         
         // Update local cache
         const tickets = this.getTicketsFromStorage();

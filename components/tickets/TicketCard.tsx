@@ -206,7 +206,7 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
 
       {/* Footer */}
       <div className="flex items-center justify-between text-xs text-slate-400">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           {ticket.assignee && (
             <div className="flex items-center gap-1">
               <HiUser className="w-3 h-3" />
@@ -226,7 +226,9 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
             </div>
           )}
         </div>
-        <span>{formatDate(ticket.createdAt)}</span>
+        <div className="flex-shrink-0">
+          <span>{formatDate(ticket.createdAt)}</span>
+        </div>
       </div>
 
       {/* Status Change Dropdown (appears on hover) */}
