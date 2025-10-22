@@ -59,14 +59,46 @@ export async function PUT(
     const body = await request.json();
     const { title, description, status, priority, type, assigneeId, dueDate, labels } = body;
 
+    // Convert frontend format to database format
+    const convertStatus = (status: string): 'TO_DO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' => {
+      const statusMap: { [key: string]: 'TO_DO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' } = {
+        'To Do': 'TO_DO',
+        'In Progress': 'IN_PROGRESS', 
+        'In Review': 'IN_REVIEW',
+        'Done': 'DONE'
+      };
+      return statusMap[status] || 'TO_DO';
+    };
+
+    const convertPriority = (priority: string): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' => {
+      const priorityMap: { [key: string]: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' } = {
+        'Low': 'LOW',
+        'Medium': 'MEDIUM',
+        'High': 'HIGH', 
+        'Critical': 'CRITICAL'
+      };
+      return priorityMap[priority] || 'MEDIUM';
+    };
+
+    const convertType = (type: string): 'BUG' | 'FEATURE' | 'TASK' | 'EPIC' | 'STORY' => {
+      const typeMap: { [key: string]: 'BUG' | 'FEATURE' | 'TASK' | 'EPIC' | 'STORY' } = {
+        'Bug': 'BUG',
+        'Feature': 'FEATURE',
+        'Task': 'TASK',
+        'Epic': 'EPIC',
+        'Story': 'STORY'
+      };
+      return typeMap[type] || 'TASK';
+    };
+
     const updatedTicket = await prisma.ticket.update({
       where: { id },
       data: {
         ...(title && { title }),
         ...(description && { description }),
-        ...(status && { status }),
-        ...(priority && { priority }),
-        ...(type && { type }),
+        ...(status && { status: convertStatus(status) }),
+        ...(priority && { priority: convertPriority(priority) }),
+        ...(type && { type: convertType(type) }),
         ...(assigneeId !== undefined && { assigneeId: assigneeId || null }),
         ...(dueDate && { dueDate: new Date(dueDate) }),
         ...(labels && {
@@ -87,9 +119,45 @@ export async function PUT(
       },
     });
 
+    // Convert database format to frontend format
+    const convertDbStatusToFrontend = (status: string): string => {
+      const statusMap: { [key: string]: string } = {
+        'TO_DO': 'To Do',
+        'IN_PROGRESS': 'In Progress',
+        'IN_REVIEW': 'In Review', 
+        'DONE': 'Done'
+      };
+      return statusMap[status] || status;
+    };
+
+    const convertDbPriorityToFrontend = (priority: string): string => {
+      const priorityMap: { [key: string]: string } = {
+        'LOW': 'Low',
+        'MEDIUM': 'Medium',
+        'HIGH': 'High',
+        'CRITICAL': 'Critical'
+      };
+      return priorityMap[priority] || priority;
+    };
+
+    const convertDbTypeToFrontend = (type: string): string => {
+      const typeMap: { [key: string]: string } = {
+        'BUG': 'Bug',
+        'FEATURE': 'Feature', 
+        'TASK': 'Task',
+        'EPIC': 'Epic',
+        'STORY': 'Story'
+      };
+      return typeMap[type] || type;
+    };
+
     // Convert to frontend format
     const convertedTicket = {
       ...updatedTicket,
+      status: convertDbStatusToFrontend(updatedTicket.status),
+      priority: convertDbPriorityToFrontend(updatedTicket.priority),
+      type: convertDbTypeToFrontend(updatedTicket.type),
+      labels: updatedTicket.labels.map(label => label.name),
       createdAt: updatedTicket.createdAt.toISOString(),
       updatedAt: updatedTicket.updatedAt.toISOString(),
       dueDate: updatedTicket.dueDate ? updatedTicket.dueDate.toISOString() : null,

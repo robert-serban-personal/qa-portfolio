@@ -170,14 +170,31 @@ export default function TicketDetailModal({
     }
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
+  const formatDate = (dateInput: string | Date) => {
+    console.log('📅 TicketDetailModal formatDate called with:', dateInput, 'type:', typeof dateInput);
+    try {
+      // Convert string to Date object if needed
+      const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.error('❌ Invalid date after conversion:', dateInput);
+        return 'Invalid Date';
+      }
+      
+      const formatted = new Intl.DateTimeFormat('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+      console.log('✅ TicketDetailModal formatDate result:', formatted);
+      return formatted;
+    } catch (error) {
+      console.error('❌ TicketDetailModal formatDate error:', error, 'dateInput:', dateInput);
+      return 'Invalid Date';
+    }
   };
 
   if (!isOpen || !currentTicket) return null;
