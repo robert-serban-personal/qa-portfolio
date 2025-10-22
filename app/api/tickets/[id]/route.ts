@@ -26,9 +26,45 @@ export async function GET(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
+    // Convert database format to frontend format
+    const convertDbStatusToFrontend = (status: string): string => {
+      const statusMap: { [key: string]: string } = {
+        'TO_DO': 'To Do',
+        'IN_PROGRESS': 'In Progress',
+        'IN_REVIEW': 'In Review', 
+        'DONE': 'Done'
+      };
+      return statusMap[status] || status;
+    };
+
+    const convertDbPriorityToFrontend = (priority: string): string => {
+      const priorityMap: { [key: string]: string } = {
+        'LOW': 'Low',
+        'MEDIUM': 'Medium',
+        'HIGH': 'High',
+        'CRITICAL': 'Critical'
+      };
+      return priorityMap[priority] || priority;
+    };
+
+    const convertDbTypeToFrontend = (type: string): string => {
+      const typeMap: { [key: string]: string } = {
+        'BUG': 'Bug',
+        'FEATURE': 'Feature', 
+        'TASK': 'Task',
+        'EPIC': 'Epic',
+        'STORY': 'Story'
+      };
+      return typeMap[type] || type;
+    };
+
     // Convert to frontend format
     const convertedTicket = {
       ...ticket,
+      status: convertDbStatusToFrontend(ticket.status),
+      priority: convertDbPriorityToFrontend(ticket.priority),
+      type: convertDbTypeToFrontend(ticket.type),
+      labels: ticket.labels.map(label => label.name),
       createdAt: ticket.createdAt.toISOString(),
       updatedAt: ticket.updatedAt.toISOString(),
       dueDate: ticket.dueDate ? ticket.dueDate.toISOString() : null,
