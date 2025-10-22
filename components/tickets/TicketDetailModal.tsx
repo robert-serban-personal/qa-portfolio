@@ -240,7 +240,7 @@ export default function TicketDetailModal({
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        className="bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="p-6 border-b border-slate-700">
@@ -278,7 +278,7 @@ export default function TicketDetailModal({
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 flex-1 overflow-y-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
@@ -564,9 +564,13 @@ export default function TicketDetailModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          {isEditing && (
-            <div className="flex gap-4 pt-6 border-t border-slate-700 mt-6">
+          </div>
+        </div>
+
+        {/* Action Buttons - Sticky Footer */}
+        {isEditing && (
+          <div className="p-6 border-t border-slate-700 bg-slate-800/95 backdrop-blur-sm">
+            <div className="flex gap-4">
               <button
                 onClick={() => setIsEditing(false)}
                 className="flex-1 px-6 py-3 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
@@ -580,8 +584,8 @@ export default function TicketDetailModal({
                 Save Changes
               </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </motion.div>
     </div>
   );

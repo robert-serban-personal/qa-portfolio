@@ -160,8 +160,13 @@ export default function TicketBoard() {
         const hasChanges = tickets.length !== allTickets.length || 
           tickets.some(ticket => {
             const updatedTicket = allTickets.find(t => t.id === ticket.id);
-            return !updatedTicket || 
-              updatedTicket.updatedAt.getTime() !== ticket.updatedAt.getTime();
+            if (!updatedTicket) return true;
+            
+            // Handle both Date objects and string dates
+            const ticketUpdatedAt = ticket.updatedAt instanceof Date ? ticket.updatedAt : new Date(ticket.updatedAt);
+            const updatedTicketUpdatedAt = updatedTicket.updatedAt instanceof Date ? updatedTicket.updatedAt : new Date(updatedTicket.updatedAt);
+            
+            return ticketUpdatedAt.getTime() !== updatedTicketUpdatedAt.getTime();
           });
         
         if (hasChanges) {
