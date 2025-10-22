@@ -3,6 +3,11 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
+    // If no database is available, return empty array
+    if (!prisma) {
+      return NextResponse.json([]);
+    }
+
     const users = await prisma.user.findMany({
       orderBy: {
         name: 'asc',
@@ -18,6 +23,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // If no database is available, return error
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+
     const body = await request.json();
     const { name, email, avatar } = body;
 

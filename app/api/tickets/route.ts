@@ -3,6 +3,11 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
+    // If no database is available, return empty array
+    if (!prisma) {
+      return NextResponse.json([]);
+    }
+
     const tickets = await prisma.ticket.findMany({
       include: {
         assignee: true,
@@ -24,6 +29,11 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // If no database is available, return error
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available. Please set up DATABASE_URL.' }, { status: 503 });
+    }
+
     const body = await request.json();
     const { title, description, priority, type, assigneeId, dueDate, labels } = body;
 

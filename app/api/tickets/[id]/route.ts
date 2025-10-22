@@ -6,6 +6,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // If no database is available, return 404
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+
     const { id } = await params;
     const ticket = await prisma.ticket.findUnique({
       where: { id },
@@ -33,6 +38,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // If no database is available, return error
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+
     const { id } = await params;
     const body = await request.json();
     const { title, description, status, priority, type, assigneeId, dueDate, labels } = body;
@@ -77,6 +87,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // If no database is available, return error
+    if (!prisma) {
+      return NextResponse.json({ error: 'Database not available' }, { status: 503 });
+    }
+
     const { id } = await params;
     await prisma.ticket.delete({
       where: { id },
