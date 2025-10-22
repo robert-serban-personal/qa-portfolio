@@ -31,12 +31,18 @@ function DroppableColumn({
   column, 
   tickets, 
   onTicketClick, 
-  onStatusChange 
+  onStatusChange,
+  onEdit,
+  onDelete,
+  onDuplicate
 }: { 
   column: { status: TicketStatus; title: string; color: string };
   tickets: Ticket[];
   onTicketClick: (ticket: Ticket) => void;
   onStatusChange: (ticket: Ticket, newStatus: TicketStatus) => void;
+  onEdit: (ticket: Ticket) => void;
+  onDelete: (ticket: Ticket) => void;
+  onDuplicate: (ticket: Ticket) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({
     id: column.status,
@@ -68,34 +74,9 @@ function DroppableColumn({
             ticket={ticket}
             onClick={() => onTicketClick(ticket)}
             onStatusChange={(newStatus) => onStatusChange(ticket, newStatus)}
-            onEdit={(ticket) => {
-              setSelectedTicket(ticket);
-              setIsDetailModalOpen(true);
-            }}
-            onDelete={async (ticket) => {
-              try {
-                await TicketService.deleteTicket(ticket.id);
-                setTickets(prev => prev.filter(t => t.id !== ticket.id));
-              } catch (error) {
-                console.error('Error deleting ticket:', error);
-              }
-            }}
-            onDuplicate={async (ticket) => {
-              try {
-                const duplicatedTicket = await TicketService.createTicket({
-                  title: `${ticket.title} (Copy)`,
-                  description: ticket.description,
-                  priority: ticket.priority,
-                  type: ticket.type,
-                  assigneeId: ticket.assignee?.id,
-                  dueDate: ticket.dueDate,
-                  labels: ticket.labels,
-                });
-                setTickets(prev => [...prev, duplicatedTicket]);
-              } catch (error) {
-                console.error('Error duplicating ticket:', error);
-              }
-            }}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onDuplicate={onDuplicate}
           />
         ))}
         
@@ -346,6 +327,34 @@ export default function TicketBoard() {
                       setIsDetailModalOpen(true);
                     }}
                     onStatusChange={handleStatusChange}
+                    onEdit={(ticket) => {
+                      setSelectedTicket(ticket);
+                      setIsDetailModalOpen(true);
+                    }}
+                    onDelete={async (ticket) => {
+                      try {
+                        await TicketService.deleteTicket(ticket.id);
+                        setTickets(prev => prev.filter(t => t.id !== ticket.id));
+                      } catch (error) {
+                        console.error('Error deleting ticket:', error);
+                      }
+                    }}
+                    onDuplicate={async (ticket) => {
+                      try {
+                        const duplicatedTicket = await TicketService.createTicket({
+                          title: `${ticket.title} (Copy)`,
+                          description: ticket.description,
+                          priority: ticket.priority,
+                          type: ticket.type,
+                          assigneeId: ticket.assignee?.id,
+                          dueDate: ticket.dueDate,
+                          labels: ticket.labels,
+                        });
+                        setTickets(prev => [...prev, duplicatedTicket]);
+                      } catch (error) {
+                        console.error('Error duplicating ticket:', error);
+                      }
+                    }}
                   />
                 </motion.div>
               );
