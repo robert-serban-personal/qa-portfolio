@@ -20,11 +20,52 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(tickets);
+    // Convert database format to frontend format
+    const convertedTickets = tickets.map(ticket => ({
+      ...ticket,
+      status: convertDbStatusToFrontend(ticket.status),
+      priority: convertDbPriorityToFrontend(ticket.priority),
+      type: convertDbTypeToFrontend(ticket.type),
+      labels: ticket.labels.map(label => label.name),
+    }));
+
+    return NextResponse.json(convertedTickets);
   } catch (error) {
     console.error('Error fetching tickets:', error);
     return NextResponse.json({ error: 'Failed to fetch tickets' }, { status: 500 });
   }
+}
+
+// Helper functions to convert database format to frontend format
+function convertDbStatusToFrontend(status: string): string {
+  const statusMap: { [key: string]: string } = {
+    'TO_DO': 'To Do',
+    'IN_PROGRESS': 'In Progress',
+    'IN_REVIEW': 'In Review', 
+    'DONE': 'Done'
+  };
+  return statusMap[status] || status;
+}
+
+function convertDbPriorityToFrontend(priority: string): string {
+  const priorityMap: { [key: string]: string } = {
+    'LOW': 'Low',
+    'MEDIUM': 'Medium',
+    'HIGH': 'High',
+    'CRITICAL': 'Critical'
+  };
+  return priorityMap[priority] || priority;
+}
+
+function convertDbTypeToFrontend(type: string): string {
+  const typeMap: { [key: string]: string } = {
+    'BUG': 'Bug',
+    'FEATURE': 'Feature', 
+    'TASK': 'Task',
+    'EPIC': 'Epic',
+    'STORY': 'Story'
+  };
+  return typeMap[type] || type;
 }
 
 export async function POST(request: NextRequest) {
@@ -40,6 +81,38 @@ export async function POST(request: NextRequest) {
     const { title, description, priority, type, assigneeId, dueDate, labels } = body;
 
     console.log('Creating ticket with data:', { title, description, priority, type, assigneeId, dueDate, labels });
+
+    // Convert frontend status format to database format
+    const convertStatus = (status: string) => {
+      const statusMap: { [key: string]: string } = {
+        'To Do': 'TO_DO',
+        'In Progress': 'IN_PROGRESS', 
+        'In Review': 'IN_REVIEW',
+        'Done': 'DONE'
+      };
+      return statusMap[status] || status;
+    };
+
+    const convertPriority = (priority: string) => {
+      const priorityMap: { [key: string]: string } = {
+        'Low': 'LOW',
+        'Medium': 'MEDIUM',
+        'High': 'HIGH', 
+        'Critical': 'CRITICAL'
+      };
+      return priorityMap[priority] || priority;
+    };
+
+    const convertType = (type: string) => {
+      const typeMap: { [key: string]: string } = {
+        'Bug': 'BUG',
+        'Feature': 'FEATURE',
+        'Task': 'TASK',
+        'Epic': 'EPIC',
+        'Story': 'STORY'
+      };
+      return typeMap[type] || type;
+    };
 
     // Create or find reporter (for now, use first user or create default)
     let reporter = await prisma.user.findFirst();
@@ -59,8 +132,8 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        priority: priority || 'MEDIUM',
-        type: type || 'TASK',
+        priority: convertPriority(priority) || 'MEDIUM',
+        type: convertType(type) || 'TASK',
         assigneeId: assigneeId || null,
         dueDate: dueDate ? new Date(dueDate) : null,
         reporterId: reporter.id,
@@ -98,10 +171,28 @@ export async function POST(request: NextRequest) {
         },
       });
       
-      return NextResponse.json(updatedTicket);
+      // Convert to frontend format
+      const convertedTicket = {
+        ...updatedTicket,
+        status: convertDbStatusToFrontend(updatedTicket!.status),
+        priority: convertDbPriorityToFrontend(updatedTicket!.priority),
+        type: convertDbTypeToFrontend(updatedTicket!.type),
+        labels: updatedTicket!.labels.map(label => label.name),
+      };
+      
+      return NextResponse.json(convertedTicket);
     }
 
-    return NextResponse.json(ticket);
+    // Convert to frontend format
+    const convertedTicket = {
+      ...ticket,
+      status: convertDbStatusToFrontend(ticket.status),
+      priority: convertDbPriorityToFrontend(ticket.priority),
+      type: convertDbTypeToFrontend(ticket.type),
+      labels: ticket.labels.map(label => label.name),
+    };
+
+    return NextResponse.json(convertedTicket);
   } catch (error) {
     console.error('Error creating ticket:', error);
     console.error('Error details:', {
