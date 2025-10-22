@@ -152,6 +152,27 @@ export default function TicketBoard() {
   // Real-time updates disabled to reduce API calls
   // Updates will happen manually when tickets are created, updated, or deleted
 
+  const handleTicketUpdated = async () => {
+    // Only reload tickets if we don't have a selected ticket open
+    // If we have a selected ticket, the modal already updated its local state
+    if (!selectedTicket) {
+      await loadTickets();
+    } else {
+      // Just update the specific ticket in the board's state
+      try {
+        const freshTicket = await TicketService.getTicketById(selectedTicket.id);
+        if (freshTicket) {
+          setTickets(prev => prev.map(t => 
+            t.id === freshTicket.id ? freshTicket : t
+          ));
+          setSelectedTicket(freshTicket);
+        }
+      } catch (error) {
+        console.error('Error refreshing updated ticket:', error);
+      }
+    }
+  };
+
   const handleTicketCreated = async () => {
     await loadTickets();
     
@@ -429,7 +450,7 @@ export default function TicketBoard() {
           setIsDetailModalOpen(false);
           setSelectedTicket(null);
         }}
-        onTicketUpdated={handleTicketCreated}
+        onTicketUpdated={handleTicketUpdated}
         onTicketDeleted={handleTicketCreated}
       />
     </div>
