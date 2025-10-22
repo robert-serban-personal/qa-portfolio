@@ -204,30 +204,34 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
         </div>
       )}
 
+      {/* Assignee - More Prominent */}
+      {ticket.assignee && (
+        <div className="mb-3 p-2 bg-slate-700/30 rounded-lg border border-slate-600">
+          <div className="flex items-center gap-2">
+            <HiUser className="w-4 h-4 text-emerald-400" />
+            <span className="text-white font-medium text-sm">{ticket.assignee.name}</span>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
-      <div className="flex items-center justify-between text-xs text-slate-400">
-        <div className="flex items-center gap-2 flex-wrap">
-          {ticket.assignee && (
-            <div className="flex items-center gap-1">
-              <HiUser className="w-3 h-3" />
-              <span>{ticket.assignee.name}</span>
-            </div>
-          )}
+      <div className="space-y-2 text-xs">
+        <div className="flex items-center justify-between">
           {ticket.dueDate && (
-            <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : ''}`}>
+            <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : 'text-orange-400'}`}>
               <HiCalendar className="w-3 h-3" />
-              <span>{formatDate(ticket.dueDate)}</span>
+              <span className="font-medium">Due: {formatDate(ticket.dueDate)}</span>
             </div>
           )}
           {ticket.attachments.length > 0 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 text-blue-400">
               <HiPaperClip className="w-3 h-3" />
-              <span>{ticket.attachments.length}</span>
+              <span className="font-medium">{ticket.attachments.length}</span>
             </div>
           )}
         </div>
-        <div className="flex-shrink-0">
-          <span>{formatDate(ticket.createdAt)}</span>
+        <div className="text-slate-500 text-right">
+          <span>Created: {formatDate(ticket.createdAt)}</span>
         </div>
       </div>
 

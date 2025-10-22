@@ -133,6 +133,22 @@ export default function TicketDetailModal({
     }
   };
 
+  const loadTicketData = async () => {
+    if (!ticket) return;
+    
+    try {
+      console.log('📎 Loading fresh ticket data...');
+      const freshTicket = await TicketService.getTicketById(ticket.id);
+      if (freshTicket) {
+        console.log('📎 Fresh ticket data loaded:', freshTicket);
+        console.log('📎 Fresh ticket attachments:', freshTicket.attachments);
+        setCurrentTicket(freshTicket);
+      }
+    } catch (error) {
+      console.error('📎 Error loading fresh ticket data:', error);
+    }
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentTicket) return;
     
@@ -158,6 +174,13 @@ export default function TicketDetailModal({
           setCurrentTicket(updatedTicket);
           console.log('📎 Calling onTicketUpdated...');
           onTicketUpdated();
+          
+          // Force a small delay to ensure state is updated
+          setTimeout(() => {
+            console.log('📎 Force refreshing ticket data...');
+            loadTicketData();
+          }, 100);
+          
           console.log('📎 File upload completed successfully');
         } else {
           console.error('📎 No updated ticket returned from addAttachment');

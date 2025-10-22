@@ -143,9 +143,39 @@ export default function TicketBoard() {
     }
   };
 
+  const [lastUpdateTime, setLastUpdateTime] = useState<Date>(new Date());
+
   useEffect(() => {
     loadTickets();
   }, []);
+
+  // Real-time updates - poll every 5 seconds for changes
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        console.log('🔄 Checking for updates...');
+        const allTickets = await TicketService.getAllTickets();
+        
+        // Check if there are any changes by comparing with current state
+        const hasChanges = tickets.length !== allTickets.length || 
+          tickets.some(ticket => {
+            const updatedTicket = allTickets.find(t => t.id === ticket.id);
+            return !updatedTicket || 
+              updatedTicket.updatedAt.getTime() !== ticket.updatedAt.getTime();
+          });
+        
+        if (hasChanges) {
+          console.log('🔄 Changes detected, updating tickets...');
+          setTickets(allTickets);
+          setLastUpdateTime(new Date());
+        }
+      } catch (error) {
+        console.error('Error checking for updates:', error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [tickets]);
 
   const handleTicketCreated = () => {
     loadTickets();
@@ -245,6 +275,12 @@ export default function TicketBoard() {
             <div>
               <h1 className="text-4xl font-bold text-white mb-2">Ticket Board</h1>
               <p className="text-slate-400">Manage your QA tickets and track progress</p>
+              <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                <span>Auto-updating every 5s</span>
+                <span>•</span>
+                <span>Last update: {lastUpdateTime.toLocaleTimeString()}</span>
+              </div>
             </div>
             <button
               onClick={() => setIsCreateModalOpen(true)}
