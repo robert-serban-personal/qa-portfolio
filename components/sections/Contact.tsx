@@ -37,7 +37,7 @@ const socialLinks = [
   {
     icon: SiGithub,
     label: 'GitHub',
-    url: 'https://github.com/robertserban',
+    url: 'https://github.com/robert-serban-personal',
     color: '#181717',
   },
 ];
