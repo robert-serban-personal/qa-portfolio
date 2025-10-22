@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useInView } from 'framer-motion';
 import { useRef, useState } from 'react';
-import { HiMail, HiPhone, HiLocationMarker, HiPaperAirplane } from 'react-icons/hi';
+import { HiMail, HiPhone, HiLocationMarker, HiPaperAirplane, HiDownload } from 'react-icons/hi';
 import { SiLinkedin, SiGithub, SiX } from 'react-icons/si';
 
 const contactInfo = [
@@ -31,20 +31,14 @@ const socialLinks = [
   {
     icon: SiLinkedin,
     label: 'LinkedIn',
-    url: 'https://linkedin.com/in/yourprofile',
+    url: 'https://www.linkedin.com/in/robert-ionut-serban-4614101ba/',
     color: '#0A66C2',
   },
   {
     icon: SiGithub,
     label: 'GitHub',
-    url: 'https://github.com/yourusername',
+    url: 'https://github.com/robertserban',
     color: '#181717',
-  },
-  {
-    icon: SiX,
-    label: 'X (Twitter)',
-    url: 'https://twitter.com/yourhandle',
-    color: '#000000',
   },
 ];
 
@@ -173,6 +167,29 @@ export default function Contact() {
                   );
                 })}
               </div>
+            </div>
+
+            {/* CV Download */}
+            <div>
+              <h3 className="text-2xl font-bold text-white mb-6">
+                Download Resume
+              </h3>
+              <motion.a
+                href="/CV_Robert_Serban.pdf"
+                download="CV_Robert_Serban.pdf"
+                initial={{ opacity: 0, y: 20 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6, delay: 1.2 }}
+                className="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border border-emerald-400/30 rounded-xl hover:border-emerald-400/50 transition-all duration-300 group"
+              >
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <HiDownload className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">Download CV</p>
+                  <p className="text-slate-400 text-sm">PDF Format</p>
+                </div>
+              </motion.a>
             </div>
 
             {/* Additional message */}

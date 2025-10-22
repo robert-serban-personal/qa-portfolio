@@ -79,9 +79,9 @@ export default function Hero() {
             transition={{ delay: 0.9 }}
             className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed"
           >
-            Senior QA Engineer specializing in test automation frameworks, 
-            API testing, and DevOps integration. Delivering robust, scalable solutions 
-            that ensure exceptional software quality and user experiences.
+            Senior QA Engineer specializing in Selenium and Playwright automation, 
+            API testing, and Python/JavaScript development. Delivering robust, scalable solutions 
+            that ensure exceptional software quality across Media, Financial, and Gaming industries.
           </motion.p>
 
           <motion.div

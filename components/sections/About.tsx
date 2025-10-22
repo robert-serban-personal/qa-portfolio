@@ -6,13 +6,12 @@ import { useRef } from 'react';
 import { HiCheckCircle } from 'react-icons/hi';
 
 const highlights = [
-  'Senior QA Engineer with 5+ years of experience',
-  'Expert in test automation frameworks (Selenium, Cypress, Playwright)',
-  'Proficient in API testing, performance testing, and DevOps integration',
-  'Strong programming skills in Python, JavaScript, TypeScript, and Java',
-  'Experience with CI/CD pipelines, Docker, and cloud platforms',
-  'Certified in ISTQB and Agile methodologies',
-  'Passionate about quality-driven development and continuous improvement',
+  'Self-taught Automation Engineer with 5+ years of experience',
+  'Expert in Selenium and Playwright test automation frameworks',
+  'Strong API testing experience across multiple industries',
+  'Proficient in Python and JavaScript programming',
+  'Experience in Media, Financial, and Gaming industries',
+  'Passionate about quality-driven development and continuous learning',
 ];
 
 export default function About() {
@@ -92,22 +91,21 @@ export default function About() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
-              Robert Serban - Senior QA Engineer
+              Robert Serban - Self-Taught Automation Engineer
             </h3>
             <div className="space-y-4 text-slate-300 text-lg leading-relaxed mb-8">
               <p>
-                As a Senior QA Engineer, I combine deep technical expertise 
-                with strategic thinking to deliver exceptional software quality. With 
-                over 5 years of experience in software testing and quality engineering, 
-                I've successfully led teams in implementing comprehensive testing strategies 
-                that ensure robust, reliable applications.
+                As a self-taught Automation Engineer, I've built my expertise through 
+                hands-on experience and continuous learning. With over 5 years of 
+                experience in software testing and automation, I specialize in creating 
+                robust test automation solutions using Selenium and Playwright frameworks.
               </p>
               <p>
-                My professional approach integrates cutting-edge automation frameworks, 
-                DevOps best practices, and collaborative methodologies to create scalable 
-                testing solutions. I'm passionate about mentoring teams and driving 
-                continuous improvement in quality processes across the entire software 
-                development lifecycle.
+                My journey spans across diverse industries including Media, Financial, 
+                and Gaming sectors, where I've developed strong API testing capabilities 
+                and automated testing strategies. I'm passionate about leveraging Python 
+                and JavaScript to build efficient automation frameworks that ensure 
+                software quality and reliability.
               </p>
             </div>
 

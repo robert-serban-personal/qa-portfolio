@@ -8,58 +8,22 @@ import { SiGithub } from 'react-icons/si';
 
 const projects = [
   {
-    title: 'E-Commerce Test Automation Suite',
+    title: 'Playwright JavaScript Automation Framework',
     description:
-      'Developed comprehensive end-to-end testing framework for e-commerce platform using Cypress and TypeScript. Implemented automated test cases covering user journeys, payment flows, and API validation with detailed reporting.',
-    technologies: ['Cypress', 'TypeScript', 'GitHub Actions', 'Allure Reports'],
-    githubUrl: 'https://github.com/robertserban/ecommerce-automation',
+      'Built comprehensive end-to-end testing framework using Playwright and JavaScript. Implemented automated test cases covering user journeys, cross-browser testing, and API validation with detailed reporting and CI/CD integration.',
+    technologies: ['Playwright', 'JavaScript', 'GitHub Actions', 'Postman'],
+    githubUrl: 'https://github.com/robertserban/playwright-automation',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   },
   {
-    title: 'REST API Testing Framework',
+    title: 'Python Selenium Automation Suite',
     description:
-      'Built Python-based REST API testing framework using pytest and requests library. Features data-driven testing, comprehensive test reporting, and integration with CI/CD pipelines for automated validation.',
-    technologies: ['Python', 'Pytest', 'Requests', 'Jenkins', 'Docker'],
-    githubUrl: 'https://github.com/robertserban/api-testing-framework',
-    liveUrl: '#',
-    image: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  },
-  {
-    title: 'Web Application Test Automation',
-    description:
-      'Created automated testing solution for web applications using Selenium WebDriver with Java and TestNG. Implemented page object model pattern, parallel test execution, and cross-browser compatibility testing.',
-    technologies: ['Selenium', 'Java', 'TestNG', 'Maven', 'Docker'],
-    githubUrl: 'https://github.com/robertserban/web-automation',
+      'Developed robust test automation framework using Python and Selenium WebDriver. Features page object model pattern, data-driven testing, comprehensive reporting, and integration with Jenkins for automated test execution.',
+    technologies: ['Python', 'Selenium', 'Jenkins', 'Git', 'Jira'],
+    githubUrl: 'https://github.com/robertserban/python-selenium-automation',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  },
-  {
-    title: 'Performance Testing Suite',
-    description:
-      'Developed performance testing framework using JMeter for load testing web applications. Created test scenarios for different user loads, monitored response times, and generated comprehensive performance reports.',
-    technologies: ['JMeter', 'Docker', 'GitHub Actions', 'Postman'],
-    githubUrl: 'https://github.com/robertserban/performance-testing',
-    liveUrl: '#',
-    image: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  },
-  {
-    title: 'CI/CD Pipeline Integration',
-    description:
-      'Set up automated testing pipeline using GitHub Actions and Docker. Integrated automated test execution into deployment process, ensuring quality gates and preventing deployment of broken code.',
-    technologies: ['GitHub Actions', 'Docker', 'Jenkins', 'Git'],
-    githubUrl: 'https://github.com/robertserban/cicd-automation',
-    liveUrl: '#',
-    image: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  },
-  {
-    title: 'Visual Regression Testing',
-    description:
-      'Implemented visual regression testing using Playwright and JavaScript. Automated screenshot comparison across different browsers and viewports to detect UI changes and ensure visual consistency.',
-    technologies: ['Playwright', 'JavaScript', 'GitHub Actions', 'Docker'],
-    githubUrl: 'https://github.com/robertserban/visual-regression',
-    liveUrl: '#',
-    image: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
   },
 ];
 
