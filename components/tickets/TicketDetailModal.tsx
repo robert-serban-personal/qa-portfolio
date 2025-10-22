@@ -53,6 +53,39 @@ export default function TicketDetailModal({
     loadUsers();
   }, [ticket]);
 
+  const formatDateOnly = (dateInput: string | Date) => {
+    console.log('📅 TicketDetailModal formatDateOnly called with:', dateInput, 'type:', typeof dateInput);
+    try {
+      // Convert string to Date object if needed
+      const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.error('❌ Invalid date after conversion:', dateInput);
+        return 'Invalid Date';
+      }
+      
+      const formatted = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }).format(date);
+      console.log('✅ TicketDetailModal formatDateOnly result:', formatted);
+      return formatted;
+    } catch (error) {
+      console.error('❌ TicketDetailModal formatDateOnly error:', error, 'dateInput:', dateInput);
+      return 'Invalid Date';
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
   const handleInputChange = (field: keyof UpdateTicketData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) {

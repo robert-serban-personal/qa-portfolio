@@ -16,6 +16,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  useDroppable,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -28,6 +29,61 @@ const statusColumns: { status: TicketStatus; title: string; color: string }[] = 
   { status: 'In Review', title: 'In Review', color: 'bg-purple-500/20' },
   { status: 'Done', title: 'Done', color: 'bg-emerald-500/20' },
 ];
+
+// DroppableColumn component for drag & drop
+function DroppableColumn({ 
+  column, 
+  tickets, 
+  onTicketClick, 
+  onStatusChange 
+}: { 
+  column: { status: TicketStatus; title: string; color: string };
+  tickets: Ticket[];
+  onTicketClick: (ticket: Ticket) => void;
+  onStatusChange: (ticket: Ticket, newStatus: TicketStatus) => void;
+}) {
+  const { setNodeRef } = useDroppable({
+    id: column.status,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
+    >
+      {/* Column Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
+          <h3 className="text-white font-semibold">{column.title}</h3>
+        </div>
+        <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded-full text-xs">
+          {tickets.length}
+        </span>
+      </div>
+
+      {/* Tickets */}
+      <div className="space-y-3 min-h-[200px]">
+        <SortableContext items={tickets.map(t => t.id)} strategy={verticalListSortingStrategy}>
+          {tickets.map(ticket => (
+            <TicketCard
+              key={ticket.id}
+              ticket={ticket}
+              onClick={() => onTicketClick(ticket)}
+              onStatusChange={(newStatus) => onStatusChange(ticket, newStatus)}
+            />
+          ))}
+        </SortableContext>
+        
+        {tickets.length === 0 && (
+          <div className="text-center py-8 text-slate-500">
+            <p className="text-sm">No tickets</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function TicketBoard() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -239,7 +295,6 @@ export default function TicketBoard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {statusColumns.map((column, index) => {
               const ticketsInColumn = getTicketsByStatus(column.status);
-              const stats = getColumnStats(column.status);
 
               return (
                 <motion.div
@@ -247,41 +302,16 @@ export default function TicketBoard() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
                 >
-                  {/* Column Header */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
-                      <h3 className="text-white font-semibold">{column.title}</h3>
-                    </div>
-                    <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded-full text-xs">
-                      {stats.count}
-                    </span>
-                  </div>
-
-                  {/* Tickets */}
-                  <div className="space-y-3 min-h-[200px]">
-                    <SortableContext items={ticketsInColumn.map(t => t.id)} strategy={verticalListSortingStrategy}>
-                      {ticketsInColumn.map(ticket => (
-                        <TicketCard
-                          key={ticket.id}
-                          ticket={ticket}
-                          onClick={() => {
-                            setSelectedTicket(ticket);
-                            setIsDetailModalOpen(true);
-                          }}
-                          onStatusChange={() => {}}
-                        />
-                      ))}
-                    </SortableContext>
-                    
-                    {ticketsInColumn.length === 0 && (
-                      <div className="text-center py-8 text-slate-500">
-                        <p className="text-sm">No tickets</p>
-                      </div>
-                    )}
-                  </div>
+                  <DroppableColumn
+                    column={column}
+                    tickets={ticketsInColumn}
+                    onTicketClick={(ticket) => {
+                      setSelectedTicket(ticket);
+                      setIsDetailModalOpen(true);
+                    }}
+                    onStatusChange={handleStatusChange}
+                  />
                 </motion.div>
               );
             })}
