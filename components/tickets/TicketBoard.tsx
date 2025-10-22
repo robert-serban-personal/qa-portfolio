@@ -127,6 +127,27 @@ export default function TicketBoard() {
     }
   };
 
+  const handleStatusChange = async (ticket: Ticket, newStatus: TicketStatus) => {
+    console.log('🔄 handleStatusChange called:', ticket.id, '->', newStatus);
+    
+    // Optimistically update the UI
+    setTickets(prev => prev.map(t => 
+      t.id === ticket.id ? { ...t, status: newStatus } : t
+    ));
+
+    // Update in the backend
+    try {
+      await TicketService.updateTicket(ticket.id, { status: newStatus });
+      console.log('✅ Status updated successfully');
+    } catch (error) {
+      console.error('❌ Error updating ticket status:', error);
+      // Revert the optimistic update on error
+      setTickets(prev => prev.map(t => 
+        t.id === ticket.id ? { ...t, status: ticket.status } : t
+      ));
+    }
+  };
+
   useEffect(() => {
     loadTickets();
   }, []);
