@@ -116,14 +116,16 @@ export async function PUT(
       ...(dueDate && { dueDate: new Date(dueDate) }),
     };
 
-    // Handle labels separately to avoid issues
+    // Handle labels separately - delete existing and create new ones
     if (labels && Array.isArray(labels)) {
+      // First delete all existing labels for this ticket
+      await prisma.ticketLabel.deleteMany({
+        where: { ticketId: id }
+      });
+      
+      // Then create new labels
       updateData.labels = {
-        set: labels.map((labelName: string) => ({ name: labelName })),
-        connectOrCreate: labels.map((labelName: string) => ({
-          where: { name: labelName },
-          create: { name: labelName },
-        })),
+        create: labels.map((labelName: string) => ({ name: labelName })),
       };
     }
 
