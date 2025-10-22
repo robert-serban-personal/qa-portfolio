@@ -182,8 +182,20 @@ export default function TicketBoard() {
     return () => clearInterval(interval);
   }, [tickets]);
 
-  const handleTicketCreated = () => {
-    loadTickets();
+  const handleTicketCreated = async () => {
+    await loadTickets();
+    
+    // If we have a selected ticket open, update it with fresh data
+    if (selectedTicket) {
+      try {
+        const freshTicket = await TicketService.getTicketById(selectedTicket.id);
+        if (freshTicket) {
+          setSelectedTicket(freshTicket);
+        }
+      } catch (error) {
+        console.error('Error refreshing selected ticket:', error);
+      }
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {

@@ -111,6 +111,20 @@ export default function TicketDetailModal({
     try {
       const updatedTicket = await TicketService.updateTicket(currentTicket.id, formData);
       if (updatedTicket) {
+        // Update the local state with the fresh ticket data
+        setCurrentTicket(updatedTicket);
+        // Update form data to reflect the changes
+        setFormData({
+          title: updatedTicket.title,
+          description: updatedTicket.description,
+          status: updatedTicket.status,
+          priority: updatedTicket.priority,
+          type: updatedTicket.type,
+          assigneeId: updatedTicket.assignee?.id || '',
+          dueDate: updatedTicket.dueDate,
+          labels: updatedTicket.labels,
+        });
+        // Notify parent component
         onTicketUpdated();
         setIsEditing(false);
       }
