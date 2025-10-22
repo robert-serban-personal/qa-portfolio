@@ -12,7 +12,7 @@ const getDatabaseUrl = () => {
          process.env.PRISMA_DATABASE_URL;
 };
 
-// Create Prisma client
+// Create Prisma client with better error handling
 const createPrismaClient = (): PrismaClient | null => {
   const databaseUrl = getDatabaseUrl();
   
@@ -31,17 +31,39 @@ const createPrismaClient = (): PrismaClient | null => {
     }
     
     const client = new PrismaClient({
+      datasources: {
+        db: {
+          url: databaseUrl,
+        },
+      },
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     });
     
+    // Test the connection
+    console.log('Prisma client created successfully');
     return client;
   } catch (error) {
     console.error('Failed to create Prisma client:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? error.code : undefined,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
     return null;
   }
 };
 
-export const prisma = global.prisma ?? createPrismaClient();
+// Initialize Prisma client
+let prismaClient: PrismaClient | null = null;
+
+try {
+  prismaClient = global.prisma ?? createPrismaClient();
+} catch (error) {
+  console.error('Failed to initialize Prisma client:', error);
+  prismaClient = null;
+}
+
+export const prisma = prismaClient;
 
 if (process.env.NODE_ENV !== 'production' && prisma) {
   global.prisma = prisma;
