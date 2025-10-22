@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  assignedTickets Ticket[] @relation("AssignedTickets")
+  reportedTickets Ticket[] @relation("ReportedTickets")
+
+  @@map("users")
+}
+
+model Ticket {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  status      TicketStatus  @default(TO_DO)
+  priority    TicketPriority @default(MEDIUM)
+  type        TicketType    @default(TASK)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  dueDate     DateTime?
+
+  // Relations
+  assigneeId  String?
+  assignee    User?         @relation("AssignedTickets", fields: [assigneeId], references: [id])
+  
+  reporterId  String
+  reporter    User          @relation("ReportedTickets", fields: [reporterId], references: [id])
+  
+  labels      TicketLabel[]
+  attachments Attachment[]
+
+  @@map("tickets")
+}
+
+model TicketLabel {
+  id       String @id @default(cuid())
+  name     String
+  ticketId String
+  ticket   Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@unique([name, ticketId])
+  @@map("ticket_labels")
+}
+
+model Attachment {
+  id         String   @id @default(cuid())
+  name       String
+  size       Int
+  type       String
+  url        String
+  uploadedAt DateTime @default(now())
+  ticketId   String
+  ticket     Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("attachments")
+}
+
+enum TicketStatus {
+  TO_DO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TicketType {
+  BUG
+  FEATURE
+  TASK
+  EPIC
+  STORY
+}
+
