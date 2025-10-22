@@ -8,7 +8,14 @@ export async function POST() {
     if (!databaseUrl) {
       return NextResponse.json({ 
         error: 'No database URL found. Please set DATABASE_URL or POSTGRES_URL in Vercel environment variables.' 
-      }, { status: 400 });
+      }, { 
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
     }
 
     const prisma = new PrismaClient({
@@ -105,6 +112,12 @@ export async function POST() {
       usersCreated: users.length,
       ticketsCreated: tickets.length,
       databaseUrl: databaseUrl.substring(0, 20) + '...' // Hide sensitive info
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
     });
     
   } catch (error) {
@@ -114,6 +127,24 @@ export async function POST() {
       error: 'Database setup failed', 
       details: error instanceof Error ? error.message : 'Unknown error',
       code: error instanceof Error && 'code' in error ? error.code : undefined
-    }, { status: 500 });
+    }, { 
+      status: 500,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      }
+    });
   }
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
