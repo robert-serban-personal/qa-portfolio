@@ -58,29 +58,6 @@ export default function About() {
                 className="w-full h-full object-cover object-center"
               />
 
-              {/* Decorative elements */}
-              <motion.div
-                animate={{
-                  rotate: [0, 360],
-                }}
-                transition={{
-                  duration: 20,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-                className="absolute -top-4 -right-4 w-24 h-24 border-4 border-emerald-400/30 rounded-full"
-              />
-              <motion.div
-                animate={{
-                  rotate: [360, 0],
-                }}
-                transition={{
-                  duration: 15,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }}
-                className="absolute -bottom-4 -left-4 w-32 h-32 border-4 border-cyan-400/30 rounded-full"
-              />
             </div>
           </motion.div>
 
@@ -91,7 +68,7 @@ export default function About() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <h3 className="text-2xl md:text-3xl font-bold text-white mb-6">
-              Robert Serban - Self-Taught Automation Engineer
+              Robert Serban - QA Engineer / Automation Engineer
             </h3>
             <div className="space-y-4 text-slate-300 text-lg leading-relaxed mb-8">
               <p>

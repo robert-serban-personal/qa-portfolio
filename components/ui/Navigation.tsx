@@ -78,8 +78,8 @@ export default function Navigation() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6 }}
-                href="/resume.pdf"
-                download
+                href="/CV_Robert_Serban.pdf"
+                download="CV_Robert_Serban.pdf"
                 className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-full hover:shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 font-medium"
               >
                 <HiDownload className="w-5 h-5" />
@@ -123,8 +123,8 @@ export default function Navigation() {
                 </button>
               ))}
               <a
-                href="/resume.pdf"
-                download
+                href="/CV_Robert_Serban.pdf"
+                download="CV_Robert_Serban.pdf"
                 className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-full hover:shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 font-medium mt-4"
               >
                 <HiDownload className="w-5 h-5" />
