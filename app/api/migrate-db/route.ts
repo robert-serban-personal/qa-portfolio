@@ -38,11 +38,11 @@ export async function POST() {
     
     // Create users table
     await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "users" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "name" TEXT NOT NULL,
-        "email" TEXT NOT NULL UNIQUE,
-        "avatar" TEXT,
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT NOT NULL PRIMARY KEY,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL UNIQUE,
+        avatar TEXT,
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL
       );
@@ -50,13 +50,13 @@ export async function POST() {
 
     // Create tickets table
     await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "tickets" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "title" TEXT NOT NULL,
-        "description" TEXT NOT NULL,
-        "status" TEXT NOT NULL DEFAULT 'TO_DO',
-        "priority" TEXT NOT NULL DEFAULT 'MEDIUM',
-        "type" TEXT NOT NULL DEFAULT 'TASK',
+      CREATE TABLE IF NOT EXISTS tickets (
+        id TEXT NOT NULL PRIMARY KEY,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'TO_DO',
+        priority TEXT NOT NULL DEFAULT 'MEDIUM',
+        type TEXT NOT NULL DEFAULT 'TASK',
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL,
         "dueDate" TIMESTAMP(3),
@@ -67,47 +67,63 @@ export async function POST() {
 
     // Create ticket_labels table
     await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "ticket_labels" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "name" TEXT NOT NULL,
+      CREATE TABLE IF NOT EXISTS ticket_labels (
+        id TEXT NOT NULL PRIMARY KEY,
+        name TEXT NOT NULL,
         "ticketId" TEXT NOT NULL,
-        UNIQUE("name", "ticketId")
+        UNIQUE(name, "ticketId")
       );
     `;
 
     // Create attachments table
     await prisma.$executeRaw`
-      CREATE TABLE IF NOT EXISTS "attachments" (
-        "id" TEXT NOT NULL PRIMARY KEY,
-        "name" TEXT NOT NULL,
-        "size" INTEGER NOT NULL,
-        "type" TEXT NOT NULL,
-        "url" TEXT NOT NULL,
+      CREATE TABLE IF NOT EXISTS attachments (
+        id TEXT NOT NULL PRIMARY KEY,
+        name TEXT NOT NULL,
+        size INTEGER NOT NULL,
+        type TEXT NOT NULL,
+        url TEXT NOT NULL,
         "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "ticketId" TEXT NOT NULL
       );
     `;
 
-    // Add foreign key constraints
-    await prisma.$executeRaw`
-      ALTER TABLE "tickets" ADD CONSTRAINT IF NOT EXISTS "tickets_assigneeId_fkey" 
-      FOREIGN KEY ("assigneeId") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-    `;
+    // Add foreign key constraints (only if they don't exist)
+    try {
+      await prisma.$executeRaw`
+        ALTER TABLE tickets ADD CONSTRAINT tickets_assigneeId_fkey 
+        FOREIGN KEY ("assigneeId") REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE;
+      `;
+    } catch (e) {
+      console.log('Foreign key constraint already exists or failed to create');
+    }
 
-    await prisma.$executeRaw`
-      ALTER TABLE "tickets" ADD CONSTRAINT IF NOT EXISTS "tickets_reporterId_fkey" 
-      FOREIGN KEY ("reporterId") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-    `;
+    try {
+      await prisma.$executeRaw`
+        ALTER TABLE tickets ADD CONSTRAINT tickets_reporterId_fkey 
+        FOREIGN KEY ("reporterId") REFERENCES users(id) ON DELETE RESTRICT ON UPDATE CASCADE;
+      `;
+    } catch (e) {
+      console.log('Foreign key constraint already exists or failed to create');
+    }
 
-    await prisma.$executeRaw`
-      ALTER TABLE "ticket_labels" ADD CONSTRAINT IF NOT EXISTS "ticket_labels_ticketId_fkey" 
-      FOREIGN KEY ("ticketId") REFERENCES "tickets"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    `;
+    try {
+      await prisma.$executeRaw`
+        ALTER TABLE ticket_labels ADD CONSTRAINT ticket_labels_ticketId_fkey 
+        FOREIGN KEY ("ticketId") REFERENCES tickets(id) ON DELETE CASCADE ON UPDATE CASCADE;
+      `;
+    } catch (e) {
+      console.log('Foreign key constraint already exists or failed to create');
+    }
 
-    await prisma.$executeRaw`
-      ALTER TABLE "attachments" ADD CONSTRAINT IF NOT EXISTS "attachments_ticketId_fkey" 
-      FOREIGN KEY ("ticketId") REFERENCES "tickets"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-    `;
+    try {
+      await prisma.$executeRaw`
+        ALTER TABLE attachments ADD CONSTRAINT attachments_ticketId_fkey 
+        FOREIGN KEY ("ticketId") REFERENCES tickets(id) ON DELETE CASCADE ON UPDATE CASCADE;
+      `;
+    } catch (e) {
+      console.log('Foreign key constraint already exists or failed to create');
+    }
 
     console.log('Tables created successfully!');
 
