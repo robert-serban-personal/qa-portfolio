@@ -20,6 +20,7 @@ export async function POST() {
 
     console.log('Creating Prisma client with URL:', databaseUrl.substring(0, 20) + '...');
     
+    // Create Prisma client with explicit datasource
     const prisma = new PrismaClient({
       datasources: {
         db: {
