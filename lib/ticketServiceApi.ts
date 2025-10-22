@@ -29,29 +29,68 @@ export class TicketService {
   }
 
   private static getTicketsFromStorage(): Ticket[] {
-    if (typeof window === 'undefined') return [];
+    console.log('💾 getTicketsFromStorage called');
+    if (typeof window === 'undefined') {
+      console.log('❌ No window object, returning empty array');
+      return [];
+    }
+    
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored).map((ticket: any) => ({
-      ...ticket,
-      createdAt: this.parseDate(ticket.createdAt),
-      updatedAt: this.parseDate(ticket.updatedAt),
-      dueDate: ticket.dueDate ? this.parseDate(ticket.dueDate) : undefined,
-      attachments: ticket.attachments?.map((att: any) => ({
-        ...att,
-        uploadedAt: this.parseDate(att.uploadedAt)
-      })) || [],
-    })) : [];
+    console.log('💾 Raw stored data:', stored);
+    
+    if (!stored) {
+      console.log('❌ No stored data, returning empty array');
+      return [];
+    }
+    
+    try {
+      const parsed = JSON.parse(stored);
+      console.log('📦 Parsed stored data:', parsed);
+      
+      const processed = parsed.map((ticket: any, index: number) => {
+        console.log(`🎫 Processing ticket ${index}:`, ticket);
+        return {
+          ...ticket,
+          createdAt: this.parseDate(ticket.createdAt),
+          updatedAt: this.parseDate(ticket.updatedAt),
+          dueDate: ticket.dueDate ? this.parseDate(ticket.dueDate) : undefined,
+          attachments: ticket.attachments?.map((att: any) => ({
+            ...att,
+            uploadedAt: this.parseDate(att.uploadedAt)
+          })) || [],
+        };
+      });
+      
+      console.log('✅ Processed tickets:', processed);
+      return processed;
+    } catch (error) {
+      console.error('❌ Error parsing stored data:', error);
+      return [];
+    }
   }
 
   private static parseDate(dateString: string | Date): Date {
-    if (!dateString) return new Date();
-    if (dateString instanceof Date) return dateString;
+    console.log('🔍 parseDate called with:', { dateString, type: typeof dateString });
     
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      console.warn('Invalid date string:', dateString, 'using current date');
+    if (!dateString) {
+      console.log('📅 No dateString provided, returning current date');
       return new Date();
     }
+    
+    if (dateString instanceof Date) {
+      console.log('📅 Already a Date object:', dateString);
+      return dateString;
+    }
+    
+    console.log('📅 Attempting to parse date string:', dateString);
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      console.error('❌ Invalid date string:', dateString, 'using current date');
+      return new Date();
+    }
+    
+    console.log('✅ Successfully parsed date:', date);
     return date;
   }
 
@@ -72,15 +111,21 @@ export class TicketService {
   }
 
   static async getAllTickets(): Promise<Ticket[]> {
+    console.log('🚀 getAllTickets called');
     return this.fetchWithFallback(
       async () => {
+        console.log('🌐 Fetching tickets from API:', `${API_BASE}/tickets`);
         const response = await fetch(`${API_BASE}/tickets`);
         if (!response.ok) throw new Error('Failed to fetch tickets');
         const tickets = await response.json();
+        console.log('📦 Raw tickets from API:', tickets);
         this.saveTicketsToStorage(tickets); // Cache for offline use
         return tickets;
       },
-      () => this.getTicketsFromStorage()
+      () => {
+        console.log('💾 Falling back to local storage');
+        return this.getTicketsFromStorage();
+      }
     );
   }
 

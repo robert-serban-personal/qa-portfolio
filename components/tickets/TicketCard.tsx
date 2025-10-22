@@ -50,10 +50,21 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
   };
 
   const isOverdue = ticket.dueDate && (() => {
+    console.log('🔍 TicketCard checking overdue for ticket:', ticket.id, 'dueDate:', ticket.dueDate);
     try {
       const dueDate = new Date(ticket.dueDate);
-      return !isNaN(dueDate.getTime()) && new Date() > dueDate;
-    } catch {
+      console.log('📅 Parsed dueDate:', dueDate);
+      const isValid = !isNaN(dueDate.getTime());
+      console.log('✅ Date is valid:', isValid);
+      if (isValid) {
+        const now = new Date();
+        const isOverdue = now > dueDate;
+        console.log('⏰ Is overdue:', isOverdue, 'now:', now, 'dueDate:', dueDate);
+        return isOverdue;
+      }
+      return false;
+    } catch (error) {
+      console.error('❌ Error checking overdue:', error);
       return false;
     }
   })();

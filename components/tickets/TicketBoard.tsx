@@ -50,15 +50,22 @@ export default function TicketBoard() {
   );
 
   const loadTickets = async () => {
+    console.log('🎫 TicketBoard loadTickets called');
     setIsLoading(true);
     try {
+      console.log('🌐 Calling TicketService.getAllTickets()');
       const allTickets = await TicketService.getAllTickets();
-      const allUsers = await TicketService.getAllUsers();
+      console.log('📦 Received tickets:', allTickets);
       
+      console.log('👥 Calling TicketService.getAllUsers()');
+      const allUsers = await TicketService.getAllUsers();
+      console.log('👥 Received users:', allUsers);
+      
+      console.log('✅ Setting tickets and users state');
       setTickets(allTickets);
       setUsers(allUsers);
     } catch (error) {
-      console.error('Error loading tickets:', error);
+      console.error('❌ Error loading tickets:', error);
     } finally {
       setIsLoading(false);
     }
