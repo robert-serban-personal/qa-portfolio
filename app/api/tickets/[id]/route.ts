@@ -49,15 +49,28 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  console.log('PUT /api/tickets/[id] - Starting request');
   try {
     // If no database is available, return error
     if (!prisma) {
+      console.log('PUT /api/tickets/[id] - No Prisma client available');
       return NextResponse.json({ error: 'Database not available' }, { status: 503 });
     }
+    console.log('PUT /api/tickets/[id] - Prisma client is available');
 
+    console.log('PUT /api/tickets/[id] - Extracting params and body');
     const { id } = await params;
-    const body = await request.json();
-    console.log('PUT /api/tickets/[id] - Request body:', JSON.stringify(body, null, 2));
+    console.log('PUT /api/tickets/[id] - Ticket ID:', id);
+    
+    let body;
+    try {
+      body = await request.json();
+      console.log('PUT /api/tickets/[id] - Request body:', JSON.stringify(body, null, 2));
+    } catch (parseError) {
+      console.error('PUT /api/tickets/[id] - Error parsing JSON:', parseError);
+      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
+    }
+    
     const { title, description, status, priority, type, assigneeId, dueDate, labels, attachments, removeAttachmentId } = body;
 
     // Convert frontend format to database format
@@ -136,6 +149,7 @@ export async function PUT(
 
     console.log('PUT /api/tickets/[id] - Update data:', JSON.stringify(updateData, null, 2));
 
+    console.log('PUT /api/tickets/[id] - Starting Prisma update operation');
     const updatedTicket = await prisma.ticket.update({
       where: { id },
       data: updateData,
@@ -146,6 +160,7 @@ export async function PUT(
         attachments: true,
       },
     });
+    console.log('PUT /api/tickets/[id] - Prisma update completed successfully');
 
     // Convert database format to frontend format
     const convertDbStatusToFrontend = (status: string): string => {
@@ -180,6 +195,7 @@ export async function PUT(
     };
 
     // Convert to frontend format
+    console.log('PUT /api/tickets/[id] - Converting to frontend format');
     const convertedTicket = {
       ...updatedTicket,
       status: convertDbStatusToFrontend(updatedTicket.status),
@@ -195,6 +211,7 @@ export async function PUT(
       })),
     };
 
+    console.log('PUT /api/tickets/[id] - Sending successful response');
     return NextResponse.json(convertedTicket);
   } catch (error) {
     console.error('Error updating ticket:', error);
