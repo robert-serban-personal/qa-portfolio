@@ -54,3 +54,5 @@ prisma/migrations/
 *.suo
 *.userosscache
 *.sln.docstates
+.vercel
+.env*.local

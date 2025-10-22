@@ -30,9 +30,9 @@ export async function GET() {
         id: 'test-ticket',
         title: 'Test Ticket',
         description: 'This is a test ticket to verify database connectivity.',
-        status: 'To Do',
-        priority: 'Medium',
-        type: 'Task',
+        status: 'TO_DO',
+        priority: 'MEDIUM',
+        type: 'TASK',
         reporterId: testUser.id,
       },
     });
@@ -49,8 +49,8 @@ export async function GET() {
     
     return NextResponse.json({ 
       error: 'Database test failed', 
-      details: error.message,
-      code: error.code 
+      details: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? error.code : undefined
     }, { status: 500 });
   }
 }

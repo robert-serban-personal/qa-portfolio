@@ -54,8 +54,8 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        priority: priority || 'Medium',
-        type: type || 'Task',
+        priority: priority || 'MEDIUM',
+        type: type || 'TASK',
         assigneeId: assigneeId || null,
         dueDate: dueDate ? new Date(dueDate) : null,
         reporterId: reporter.id,
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
     console.error('Error creating ticket:', error);
     
     // Provide more specific error information
-    if (error.code === 'P2021') {
+    if (error instanceof Error && 'code' in error && error.code === 'P2021') {
       return NextResponse.json({ 
         error: 'Database tables do not exist. Please run database migrations first.' 
       }, { status: 503 });
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({ 
       error: 'Failed to create ticket', 
-      details: error.message 
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   }
 }
