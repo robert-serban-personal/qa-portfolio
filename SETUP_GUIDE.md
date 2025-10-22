@@ -65,9 +65,7 @@ git push -u origin main
    - Build Command: `npm run build`
    - Output Directory: `.next`
 
-6. **Add Environment Variables:**
-   - `DATABASE_URL`: (We'll set this up next)
-   - `NODE_ENV`: `production`
+6. **Deploy first** (we'll add environment variables after)
 
 7. **Deploy!**
 
@@ -78,7 +76,9 @@ git push -u origin main
 2. Go to "Storage" tab
 3. Click "Create Database" → "Postgres"
 4. Copy the connection string
-5. Add it as `DATABASE_URL` environment variable
+5. Go to "Settings" → "Environment Variables"
+6. Add `DATABASE_URL` with your connection string
+7. Redeploy your project
 
 **Option B: Supabase (Free)**
 1. Go to [supabase.com](https://supabase.com)
