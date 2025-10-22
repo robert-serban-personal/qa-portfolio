@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title, description, priority, type, assigneeId, dueDate, labels } = body;
 
+    console.log('Creating ticket with data:', { title, description, priority, type, assigneeId, dueDate, labels });
+
     // Create or find reporter (for now, use first user or create default)
     let reporter = await prisma.user.findFirst();
     if (!reporter) {
@@ -50,6 +52,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    console.log('Using reporter:', reporter.id);
+
+    // Create ticket without labels first
     const ticket = await prisma.ticket.create({
       data: {
         title,
@@ -59,11 +64,6 @@ export async function POST(request: NextRequest) {
         assigneeId: assigneeId || null,
         dueDate: dueDate ? new Date(dueDate) : null,
         reporterId: reporter.id,
-        labels: {
-          create: labels?.map((label: string) => ({
-            name: label,
-          })) || [],
-        },
       },
       include: {
         assignee: true,
@@ -72,6 +72,34 @@ export async function POST(request: NextRequest) {
         attachments: true,
       },
     });
+
+    console.log('Ticket created successfully:', ticket.id);
+
+    // Add labels separately if provided
+    if (labels && labels.length > 0) {
+      console.log('Adding labels:', labels);
+      for (const label of labels) {
+        await prisma.ticketLabel.create({
+          data: {
+            name: label,
+            ticketId: ticket.id,
+          },
+        });
+      }
+      
+      // Fetch updated ticket with labels
+      const updatedTicket = await prisma.ticket.findUnique({
+        where: { id: ticket.id },
+        include: {
+          assignee: true,
+          reporter: true,
+          labels: true,
+          attachments: true,
+        },
+      });
+      
+      return NextResponse.json(updatedTicket);
+    }
 
     return NextResponse.json(ticket);
   } catch (error) {
