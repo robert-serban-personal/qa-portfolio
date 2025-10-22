@@ -1,7 +1,4 @@
 {
-  "version": 2,
-  "env": {
-    "DATABASE_URL": "@database_url"
-  }
+  "version": 2
 }
 
