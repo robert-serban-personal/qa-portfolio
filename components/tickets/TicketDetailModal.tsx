@@ -200,7 +200,7 @@ export default function TicketDetailModal({
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
                   />
                 ) : (
-                  <h3 className="text-xl font-semibold text-white">{ticket.title}</h3>
+                  <h3 className="text-xl font-semibold text-white">{currentTicket.title}</h3>
                 )}
               </div>
 
