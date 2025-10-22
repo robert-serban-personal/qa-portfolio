@@ -17,7 +17,6 @@ import {
   SiPytest,
   SiGithubactions,
   SiTestinglibrary,
-  SiTestng,
 } from 'react-icons/si';
 import { DiJava } from 'react-icons/di';
 import { VscJson, VscCode } from 'react-icons/vsc';
@@ -30,7 +29,7 @@ const skillCategories = [
       { name: 'Cypress', icon: SiCypress, color: '#17202C' },
       { name: 'Playwright', icon: VscCode, color: '#2EAD33' },
       { name: 'Pytest', icon: SiPytest, color: '#0A9EDC' },
-      { name: 'TestNG', icon: SiTestng, color: '#FF6C37' },
+      { name: 'TestNG', icon: DiJava, color: '#FF6C37' },
       { name: 'Testing Library', icon: SiTestinglibrary, color: '#E33332' },
     ],
   },
