@@ -57,6 +57,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
+    console.log('PUT /api/tickets/[id] - Request body:', JSON.stringify(body, null, 2));
     const { title, description, status, priority, type, assigneeId, dueDate, labels, attachments, removeAttachmentId } = body;
 
     // Convert frontend format to database format
@@ -91,42 +92,53 @@ export async function PUT(
       return typeMap[type] || 'TASK';
     };
 
+    // Prepare update data
+    const updateData: any = {
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(status && { status: convertStatus(status) }),
+      ...(priority && { priority: convertPriority(priority) }),
+      ...(type && { type: convertType(type) }),
+      ...(assigneeId !== undefined && { assigneeId: assigneeId || null }),
+      ...(dueDate && { dueDate: new Date(dueDate) }),
+    };
+
+    // Handle labels separately to avoid issues
+    if (labels && Array.isArray(labels)) {
+      updateData.labels = {
+        set: labels.map((labelName: string) => ({ name: labelName })),
+        connectOrCreate: labels.map((labelName: string) => ({
+          where: { name: labelName },
+          create: { name: labelName },
+        })),
+      };
+    }
+
+    // Handle attachments separately
+    if (attachments && attachments.length > 0) {
+      updateData.attachments = {
+        create: attachments.map((att: any) => ({
+          name: att.name,
+          size: att.size,
+          type: att.type,
+          url: att.url,
+          uploadedAt: new Date(att.uploadedAt),
+        })),
+      };
+    }
+
+    // Handle attachment removal
+    if (removeAttachmentId) {
+      updateData.attachments = {
+        delete: { id: removeAttachmentId },
+      };
+    }
+
+    console.log('PUT /api/tickets/[id] - Update data:', JSON.stringify(updateData, null, 2));
+
     const updatedTicket = await prisma.ticket.update({
       where: { id },
-      data: {
-        ...(title && { title }),
-        ...(description && { description }),
-        ...(status && { status: convertStatus(status) }),
-        ...(priority && { priority: convertPriority(priority) }),
-        ...(type && { type: convertType(type) }),
-        ...(assigneeId !== undefined && { assigneeId: assigneeId || null }),
-        ...(dueDate && { dueDate: new Date(dueDate) }),
-        ...(labels && {
-          labels: {
-            set: labels.map((labelName: string) => ({ name: labelName })),
-            connectOrCreate: labels.map((labelName: string) => ({
-              where: { name: labelName },
-              create: { name: labelName },
-            })),
-          },
-        }),
-        ...(attachments && attachments.length > 0 && {
-          attachments: {
-            create: attachments.map((att: any) => ({
-              name: att.name,
-              size: att.size,
-              type: att.type,
-              url: att.url,
-              uploadedAt: new Date(att.uploadedAt),
-            })),
-          },
-        }),
-        ...(removeAttachmentId && {
-          attachments: {
-            delete: { id: removeAttachmentId },
-          },
-        }),
-      },
+      data: updateData,
       include: {
         assignee: true,
         reporter: true,
@@ -186,7 +198,24 @@ export async function PUT(
     return NextResponse.json(convertedTicket);
   } catch (error) {
     console.error('Error updating ticket:', error);
-    return NextResponse.json({ error: 'Failed to update ticket' }, { status: 500 });
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? error.code : undefined,
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    
+    // Provide more specific error information
+    if (error instanceof Error && 'code' in error && error.code === 'P2021') {
+      return NextResponse.json({ 
+        error: 'Database tables do not exist. Please run database migrations first.' 
+      }, { status: 503 });
+    }
+    
+    return NextResponse.json({ 
+      error: 'Failed to update ticket', 
+      details: error instanceof Error ? error.message : 'Unknown error',
+      code: error instanceof Error && 'code' in error ? error.code : undefined,
+    }, { status: 500 });
   }
 }
 
