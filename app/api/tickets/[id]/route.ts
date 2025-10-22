@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const ticket = await prisma.ticket.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         assignee: true,
         reporter: true,
@@ -29,21 +30,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title, description, status, priority, type, assigneeId, dueDate, labels } = body;
 
-    // Update labels
-    if (labels) {
-      await prisma.ticketLabel.deleteMany({
-        where: { ticketId: params.id },
-      });
-    }
-
-    const ticket = await prisma.ticket.update({
-      where: { id: params.id },
+    const updatedTicket = await prisma.ticket.update({
+      where: { id },
       data: {
         ...(title && { title }),
         ...(description && { description }),
@@ -54,7 +49,11 @@ export async function PUT(
         ...(dueDate && { dueDate: new Date(dueDate) }),
         ...(labels && {
           labels: {
-            create: labels.map((label: string) => ({ name: label })),
+            set: labels.map((labelName: string) => ({ name: labelName })),
+            connectOrCreate: labels.map((labelName: string) => ({
+              where: { name: labelName },
+              create: { name: labelName },
+            })),
           },
         }),
       },
@@ -66,7 +65,7 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(ticket);
+    return NextResponse.json(updatedTicket);
   } catch (error) {
     console.error('Error updating ticket:', error);
     return NextResponse.json({ error: 'Failed to update ticket' }, { status: 500 });
@@ -75,11 +74,12 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     await prisma.ticket.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     return NextResponse.json({ success: true });
