@@ -187,15 +187,19 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
       {/* Labels */}
       {ticket.labels.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
-          {ticket.labels.slice(0, 3).map(label => (
-            <span
-              key={label}
-              className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700/50 text-slate-300 rounded text-xs border border-slate-600"
-            >
-              <HiTag className="w-3 h-3" />
-              {label}
-            </span>
-          ))}
+          {ticket.labels.slice(0, 3).map((label, index) => {
+            const labelName = typeof label === 'string' ? label : label.name;
+            const labelKey = typeof label === 'string' ? label : label.id || index;
+            return (
+              <span
+                key={labelKey}
+                className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700/50 text-slate-300 rounded text-xs border border-slate-600"
+              >
+                <HiTag className="w-3 h-3" />
+                {labelName}
+              </span>
+            );
+          })}
           {ticket.labels.length > 3 && (
             <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded text-xs border border-slate-600">
               +{ticket.labels.length - 3}

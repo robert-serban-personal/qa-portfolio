@@ -39,7 +39,7 @@ export default function TicketDetailModal({
         type: ticket.type,
         assigneeId: ticket.assignee?.id || '',
         dueDate: ticket.dueDate,
-        labels: ticket.labels,
+        labels: ticket.labels.map(label => typeof label === 'string' ? label : label.name),
       });
     }
     const loadUsers = async () => {
@@ -122,7 +122,7 @@ export default function TicketDetailModal({
           type: updatedTicket.type,
           assigneeId: updatedTicket.assignee?.id || '',
           dueDate: updatedTicket.dueDate,
-          labels: updatedTicket.labels,
+          labels: updatedTicket.labels.map(label => typeof label === 'string' ? label : label.name),
         });
         // Notify parent component
         onTicketUpdated();
@@ -369,15 +369,19 @@ export default function TicketDetailModal({
                   </div>
                 ) : (
                   <div className="flex flex-wrap gap-2">
-                    {currentTicket.labels.map(label => (
-                      <span
-                        key={label}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm border border-emerald-400/30"
-                      >
-                        <HiTag className="w-3 h-3" />
-                        {label}
-                      </span>
-                    ))}
+                    {currentTicket.labels.map((label, index) => {
+                      const labelName = typeof label === 'string' ? label : label.name;
+                      const labelKey = typeof label === 'string' ? label : label.id || index;
+                      return (
+                        <span
+                          key={labelKey}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm border border-emerald-400/30"
+                        >
+                          <HiTag className="w-3 h-3" />
+                          {labelName}
+                        </span>
+                      );
+                    })}
                   </div>
                 )}
               </div>
