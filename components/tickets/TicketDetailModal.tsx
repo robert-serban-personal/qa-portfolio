@@ -563,8 +563,6 @@ export default function TicketDetailModal({
               </div>
             </div>
           </div>
-
-          </div>
         </div>
 
         {/* Action Buttons - Sticky Footer */}
