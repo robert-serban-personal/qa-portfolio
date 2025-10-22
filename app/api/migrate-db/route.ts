@@ -43,8 +43,8 @@ export async function POST() {
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         avatar TEXT,
-        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP NOT NULL
       );
     `;
 
@@ -57,9 +57,9 @@ export async function POST() {
         status TEXT NOT NULL DEFAULT 'TO_DO',
         priority TEXT NOT NULL DEFAULT 'MEDIUM',
         type TEXT NOT NULL DEFAULT 'TASK',
-        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updatedAt" TIMESTAMP(3) NOT NULL,
-        "dueDate" TIMESTAMP(3),
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "updatedAt" TIMESTAMP NOT NULL,
+        "dueDate" TIMESTAMP,
         "assigneeId" TEXT,
         "reporterId" TEXT NOT NULL
       );
@@ -80,10 +80,10 @@ export async function POST() {
       CREATE TABLE IF NOT EXISTS attachments (
         id TEXT NOT NULL PRIMARY KEY,
         name TEXT NOT NULL,
-        size INTEGER NOT NULL,
+        size INT NOT NULL,
         type TEXT NOT NULL,
         url TEXT NOT NULL,
-        "uploadedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "uploadedAt" TIMESTAMP NOT NULL DEFAULT NOW(),
         "ticketId" TEXT NOT NULL
       );
     `;
