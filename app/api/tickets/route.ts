@@ -27,6 +27,13 @@ export async function GET() {
       priority: convertDbPriorityToFrontend(ticket.priority),
       type: convertDbTypeToFrontend(ticket.type),
       labels: ticket.labels.map(label => label.name),
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      dueDate: ticket.dueDate ? ticket.dueDate.toISOString() : null,
+      attachments: ticket.attachments.map(att => ({
+        ...att,
+        uploadedAt: att.uploadedAt.toISOString(),
+      })),
     }));
 
     return NextResponse.json(convertedTickets);
@@ -178,6 +185,13 @@ export async function POST(request: NextRequest) {
         priority: convertDbPriorityToFrontend(updatedTicket!.priority),
         type: convertDbTypeToFrontend(updatedTicket!.type),
         labels: updatedTicket!.labels.map(label => label.name),
+        createdAt: updatedTicket!.createdAt.toISOString(),
+        updatedAt: updatedTicket!.updatedAt.toISOString(),
+        dueDate: updatedTicket!.dueDate ? updatedTicket!.dueDate.toISOString() : null,
+        attachments: updatedTicket!.attachments.map(att => ({
+          ...att,
+          uploadedAt: att.uploadedAt.toISOString(),
+        })),
       };
       
       return NextResponse.json(convertedTicket);
@@ -190,6 +204,13 @@ export async function POST(request: NextRequest) {
       priority: convertDbPriorityToFrontend(ticket.priority),
       type: convertDbTypeToFrontend(ticket.type),
       labels: ticket.labels.map(label => label.name),
+      createdAt: ticket.createdAt.toISOString(),
+      updatedAt: ticket.updatedAt.toISOString(),
+      dueDate: ticket.dueDate ? ticket.dueDate.toISOString() : null,
+      attachments: ticket.attachments.map(att => ({
+        ...att,
+        uploadedAt: att.uploadedAt.toISOString(),
+      })),
     };
 
     return NextResponse.json(convertedTicket);
