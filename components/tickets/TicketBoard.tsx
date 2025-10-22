@@ -8,6 +8,19 @@ import { TicketService } from '@/lib/ticketServiceApi';
 import CreateTicketModal from './CreateTicketModal';
 import TicketCard from './TicketCard';
 import TicketDetailModal from './TicketDetailModal';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 
 const statusColumns: { status: TicketStatus; title: string; color: string }[] = [
   { status: 'To Do', title: 'To Do', color: 'bg-slate-500/20' },
@@ -26,6 +39,15 @@ export default function TicketBoard() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
 
   const loadTickets = async () => {
     setIsLoading(true);
@@ -50,16 +72,39 @@ export default function TicketBoard() {
     loadTickets();
   };
 
-  const handleStatusChange = async (ticketId: string, newStatus: TicketStatus) => {
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    const ticket = tickets.find(t => t.id === active.id);
+    setActiveTicket(ticket || null);
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveTicket(null);
+
+    if (!over) return;
+
+    const ticketId = active.id as string;
+    const newStatus = over.id as TicketStatus;
+
+    // Find the ticket and check if status actually changed
+    const ticket = tickets.find(t => t.id === ticketId);
+    if (!ticket || ticket.status === newStatus) return;
+
+    // Optimistically update the UI
+    setTickets(prev => prev.map(t => 
+      t.id === ticketId ? { ...t, status: newStatus } : t
+    ));
+
+    // Update in the backend
     try {
-      const updatedTicket = await TicketService.updateTicket(ticketId, { status: newStatus });
-      if (updatedTicket) {
-        setTickets(prev => prev.map(ticket => 
-          ticket.id === ticketId ? updatedTicket : ticket
-        ));
-      }
+      await TicketService.updateTicket(ticketId, { status: newStatus });
     } catch (error) {
       console.error('Error updating ticket status:', error);
+      // Revert the optimistic update on error
+      setTickets(prev => prev.map(t => 
+        t.id === ticketId ? { ...t, status: ticket.status } : t
+      ));
     }
   };
 
@@ -179,54 +224,74 @@ export default function TicketBoard() {
         </div>
 
         {/* Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {statusColumns.map((column, index) => {
-            const ticketsInColumn = getTicketsByStatus(column.status);
-            const stats = getColumnStats(column.status);
+        <DndContext
+          sensors={sensors}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {statusColumns.map((column, index) => {
+              const ticketsInColumn = getTicketsByStatus(column.status);
+              const stats = getColumnStats(column.status);
 
-            return (
-              <motion.div
-                key={column.status}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
-              >
-                {/* Column Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
-                    <h3 className="text-white font-semibold">{column.title}</h3>
-                  </div>
-                  <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded-full text-xs">
-                    {stats.count}
-                  </span>
-                </div>
-
-                {/* Tickets */}
-                <div className="space-y-3 min-h-[200px]">
-                  {ticketsInColumn.map(ticket => (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={ticket}
-                      onClick={() => {
-                        setSelectedTicket(ticket);
-                        setIsDetailModalOpen(true);
-                      }}
-                      onStatusChange={(newStatus) => handleStatusChange(ticket.id, newStatus)}
-                    />
-                  ))}
-                  
-                  {ticketsInColumn.length === 0 && (
-                    <div className="text-center py-8 text-slate-500">
-                      <p className="text-sm">No tickets</p>
+              return (
+                <motion.div
+                  key={column.status}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4"
+                >
+                  {/* Column Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
+                      <h3 className="text-white font-semibold">{column.title}</h3>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                    <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded-full text-xs">
+                      {stats.count}
+                    </span>
+                  </div>
+
+                  {/* Tickets */}
+                  <div className="space-y-3 min-h-[200px]">
+                    <SortableContext items={ticketsInColumn.map(t => t.id)} strategy={verticalListSortingStrategy}>
+                      {ticketsInColumn.map(ticket => (
+                        <TicketCard
+                          key={ticket.id}
+                          ticket={ticket}
+                          onClick={() => {
+                            setSelectedTicket(ticket);
+                            setIsDetailModalOpen(true);
+                          }}
+                          onStatusChange={() => {}}
+                        />
+                      ))}
+                    </SortableContext>
+                    
+                    {ticketsInColumn.length === 0 && (
+                      <div className="text-center py-8 text-slate-500">
+                        <p className="text-sm">No tickets</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <DragOverlay>
+            {activeTicket ? (
+              <div className="opacity-50">
+                <TicketCard
+                  ticket={activeTicket}
+                  onClick={() => {}}
+                  onStatusChange={() => {}}
+                />
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
 
         {/* Stats Summary */}
         <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">

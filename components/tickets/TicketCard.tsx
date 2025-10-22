@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import { HiTag, HiUser, HiCalendar, HiDotsVertical, HiPaperClip } from 'react-icons/hi';
 import { Ticket, TicketPriority, TicketStatus } from '@/lib/types';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -25,6 +27,20 @@ const statusColors = {
 };
 
 export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: ticket.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -37,8 +53,14 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
 
   return (
     <motion.div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       whileHover={{ y: -2 }}
-      className="bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4 cursor-pointer hover:border-emerald-400/50 transition-all duration-300 group"
+      className={`bg-slate-800/50 backdrop-blur-sm border border-slate-700 rounded-xl p-4 cursor-pointer hover:border-emerald-400/50 transition-all duration-300 group ${
+        isDragging ? 'opacity-50' : ''
+      }`}
       onClick={onClick}
     >
       {/* Header */}
