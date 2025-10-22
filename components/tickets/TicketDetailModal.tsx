@@ -216,7 +216,7 @@ export default function TicketDetailModal({
                   />
                 ) : (
                   <div className="bg-slate-700/30 rounded-lg p-4 text-slate-300 whitespace-pre-wrap">
-                    {ticket.description}
+                    {currentTicket.description}
                   </div>
                 )}
               </div>
