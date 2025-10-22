@@ -42,11 +42,19 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    }).format(date);
+    console.log('📅 formatDate called with:', date, 'type:', typeof date);
+    try {
+      const formatted = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      }).format(date);
+      console.log('✅ formatDate result:', formatted);
+      return formatted;
+    } catch (error) {
+      console.error('❌ formatDate error:', error, 'date:', date);
+      return 'Invalid Date';
+    }
   };
 
   const isOverdue = ticket.dueDate && (() => {
@@ -144,7 +152,10 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
           {ticket.dueDate && (
             <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : ''}`}>
               <HiCalendar className="w-3 h-3" />
-              <span>{formatDate(ticket.dueDate)}</span>
+              <span>{(() => {
+                console.log('🎯 Rendering dueDate:', ticket.dueDate, 'type:', typeof ticket.dueDate);
+                return formatDate(ticket.dueDate);
+              })()}</span>
             </div>
           )}
           {ticket.attachments.length > 0 && (
@@ -154,7 +165,10 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
             </div>
           )}
         </div>
-        <span>{formatDate(ticket.createdAt)}</span>
+        <span>{(() => {
+          console.log('🎯 Rendering createdAt:', ticket.createdAt, 'type:', typeof ticket.createdAt);
+          return formatDate(ticket.createdAt);
+        })()}</span>
       </div>
 
       {/* Status Change Dropdown (appears on hover) */}
