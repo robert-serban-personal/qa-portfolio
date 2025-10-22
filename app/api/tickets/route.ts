@@ -83,35 +83,35 @@ export async function POST(request: NextRequest) {
     console.log('Creating ticket with data:', { title, description, priority, type, assigneeId, dueDate, labels });
 
     // Convert frontend status format to database format
-    const convertStatus = (status: string) => {
-      const statusMap: { [key: string]: string } = {
+    const convertStatus = (status: string): 'TO_DO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' => {
+      const statusMap: { [key: string]: 'TO_DO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' } = {
         'To Do': 'TO_DO',
         'In Progress': 'IN_PROGRESS', 
         'In Review': 'IN_REVIEW',
         'Done': 'DONE'
       };
-      return statusMap[status] || status;
+      return statusMap[status] || 'TO_DO';
     };
 
-    const convertPriority = (priority: string) => {
-      const priorityMap: { [key: string]: string } = {
+    const convertPriority = (priority: string): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' => {
+      const priorityMap: { [key: string]: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' } = {
         'Low': 'LOW',
         'Medium': 'MEDIUM',
         'High': 'HIGH', 
         'Critical': 'CRITICAL'
       };
-      return priorityMap[priority] || priority;
+      return priorityMap[priority] || 'MEDIUM';
     };
 
-    const convertType = (type: string) => {
-      const typeMap: { [key: string]: string } = {
+    const convertType = (type: string): 'BUG' | 'FEATURE' | 'TASK' | 'EPIC' | 'STORY' => {
+      const typeMap: { [key: string]: 'BUG' | 'FEATURE' | 'TASK' | 'EPIC' | 'STORY' } = {
         'Bug': 'BUG',
         'Feature': 'FEATURE',
         'Task': 'TASK',
         'Epic': 'EPIC',
         'Story': 'STORY'
       };
-      return typeMap[type] || type;
+      return typeMap[type] || 'TASK';
     };
 
     // Create or find reporter (for now, use first user or create default)
@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
       data: {
         title,
         description,
-        priority: convertPriority(priority) || 'MEDIUM',
-        type: convertType(type) || 'TASK',
+        priority: convertPriority(priority),
+        type: convertType(type),
         assigneeId: assigneeId || null,
         dueDate: dueDate ? new Date(dueDate) : null,
         reporterId: reporter.id,
