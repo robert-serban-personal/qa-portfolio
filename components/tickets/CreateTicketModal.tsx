@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiX, HiPlus, HiCalendar, HiTag } from 'react-icons/hi';
 import { CreateTicketData, TicketPriority, TicketType, User } from '@/lib/types';
-import { TicketService } from '@/lib/ticketService';
+import { TicketService } from '@/lib/ticketServiceApi';
 
 interface CreateTicketModalProps {
   isOpen: boolean;
@@ -26,7 +26,19 @@ export default function CreateTicketModal({ isOpen, onClose, onTicketCreated }: 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const users = TicketService.getAllUsers();
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const allUsers = await TicketService.getAllUsers();
+        setUsers(allUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    };
+    loadUsers();
+  }, []);
 
   const handleInputChange = (field: keyof CreateTicketData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -84,7 +96,7 @@ export default function CreateTicketModal({ isOpen, onClose, onTicketCreated }: 
     setIsSubmitting(true);
     
     try {
-      TicketService.createTicket(formData);
+      await TicketService.createTicket(formData);
       onTicketCreated();
       onClose();
       

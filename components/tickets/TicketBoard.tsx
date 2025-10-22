@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiPlus, HiSearch, HiFilter, HiRefresh } from 'react-icons/hi';
 import { Ticket, TicketStatus, User } from '@/lib/types';
-import { TicketService } from '@/lib/ticketService';
+import { TicketService } from '@/lib/ticketServiceApi';
 import CreateTicketModal from './CreateTicketModal';
 import TicketCard from './TicketCard';
 import TicketDetailModal from './TicketDetailModal';
@@ -27,14 +27,19 @@ export default function TicketBoard() {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  const loadTickets = () => {
+  const loadTickets = async () => {
     setIsLoading(true);
-    const allTickets = TicketService.getAllTickets();
-    const allUsers = TicketService.getAllUsers();
-    
-    setTickets(allTickets);
-    setUsers(allUsers);
-    setIsLoading(false);
+    try {
+      const allTickets = await TicketService.getAllTickets();
+      const allUsers = await TicketService.getAllUsers();
+      
+      setTickets(allTickets);
+      setUsers(allUsers);
+    } catch (error) {
+      console.error('Error loading tickets:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -45,12 +50,16 @@ export default function TicketBoard() {
     loadTickets();
   };
 
-  const handleStatusChange = (ticketId: string, newStatus: TicketStatus) => {
-    const updatedTicket = TicketService.updateTicket(ticketId, { status: newStatus });
-    if (updatedTicket) {
-      setTickets(prev => prev.map(ticket => 
-        ticket.id === ticketId ? updatedTicket : ticket
-      ));
+  const handleStatusChange = async (ticketId: string, newStatus: TicketStatus) => {
+    try {
+      const updatedTicket = await TicketService.updateTicket(ticketId, { status: newStatus });
+      if (updatedTicket) {
+        setTickets(prev => prev.map(ticket => 
+          ticket.id === ticketId ? updatedTicket : ticket
+        ));
+      }
+    } catch (error) {
+      console.error('Error updating ticket status:', error);
     }
   };
 
@@ -59,7 +68,12 @@ export default function TicketBoard() {
 
     // Search filter
     if (searchQuery) {
-      filtered = TicketService.searchTickets(searchQuery);
+      const lowercaseQuery = searchQuery.toLowerCase();
+      filtered = filtered.filter(ticket => 
+        ticket.title.toLowerCase().includes(lowercaseQuery) ||
+        ticket.description.toLowerCase().includes(lowercaseQuery) ||
+        ticket.labels.some(label => label.toLowerCase().includes(lowercaseQuery))
+      );
     }
 
     // Assignee filter

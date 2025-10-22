@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { HiX, HiTag, HiUser, HiCalendar, HiPencil, HiTrash, HiPlus, HiPaperClip, HiDownload } from 'react-icons/hi';
 import { Ticket, UpdateTicketData, TicketStatus, TicketPriority, TicketType, User, Attachment } from '@/lib/types';
-import { TicketService } from '@/lib/ticketService';
+import { TicketService } from '@/lib/ticketServiceApi';
 
 interface TicketDetailModalProps {
   ticket: Ticket | null;
@@ -42,7 +42,15 @@ export default function TicketDetailModal({
         labels: ticket.labels,
       });
     }
-    setUsers(TicketService.getAllUsers());
+    const loadUsers = async () => {
+      try {
+        const allUsers = await TicketService.getAllUsers();
+        setUsers(allUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    };
+    loadUsers();
   }, [ticket]);
 
   const handleInputChange = (field: keyof UpdateTicketData, value: any) => {
@@ -69,47 +77,63 @@ export default function TicketDetailModal({
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!currentTicket) return;
 
-    const updatedTicket = TicketService.updateTicket(currentTicket.id, formData);
-    if (updatedTicket) {
-      onTicketUpdated();
-      setIsEditing(false);
+    try {
+      const updatedTicket = await TicketService.updateTicket(currentTicket.id, formData);
+      if (updatedTicket) {
+        onTicketUpdated();
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error('Error updating ticket:', error);
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!currentTicket) return;
     
     if (confirm('Are you sure you want to delete this ticket?')) {
-      TicketService.deleteTicket(currentTicket.id);
-      onTicketDeleted();
-      onClose();
+      try {
+        await TicketService.deleteTicket(currentTicket.id);
+        onTicketDeleted();
+        onClose();
+      } catch (error) {
+        console.error('Error deleting ticket:', error);
+      }
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!currentTicket) return;
     
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      const updatedTicket = TicketService.addAttachment(currentTicket.id, file);
-      if (updatedTicket) {
-        setCurrentTicket(updatedTicket);
-        onTicketUpdated();
+      try {
+        const updatedTicket = await TicketService.addAttachment(currentTicket.id, file);
+        if (updatedTicket) {
+          setCurrentTicket(updatedTicket);
+          onTicketUpdated();
+        }
+      } catch (error) {
+        console.error('Error uploading attachment:', error);
       }
     }
   };
 
-  const handleRemoveAttachment = (attachmentId: string) => {
+  const handleRemoveAttachment = async (attachmentId: string) => {
     if (!currentTicket) return;
     
-    const updatedTicket = TicketService.removeAttachment(currentTicket.id, attachmentId);
-    if (updatedTicket) {
-      setCurrentTicket(updatedTicket);
-      onTicketUpdated();
+    try {
+      const updatedTicket = await TicketService.removeAttachment(currentTicket.id, attachmentId);
+      if (updatedTicket) {
+        setCurrentTicket(updatedTicket);
+        onTicketUpdated();
+      }
+    } catch (error) {
+      console.error('Error removing attachment:', error);
     }
   };
 
