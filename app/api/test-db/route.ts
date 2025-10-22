@@ -3,45 +3,34 @@ import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
+    // Check what environment variables are available
+    const envVars = {
+      hasDATABASE_URL: !!process.env.DATABASE_URL,
+      hasPOSTGRES_URL: !!process.env.POSTGRES_URL,
+      hasPRISMA_DATABASE_URL: !!process.env.PRISMA_DATABASE_URL,
+      DATABASE_URL_prefix: process.env.DATABASE_URL?.substring(0, 20),
+      POSTGRES_URL_prefix: process.env.POSTGRES_URL?.substring(0, 20),
+    };
+
     if (!prisma) {
       return NextResponse.json({ 
-        error: 'Database not available. Please set up DATABASE_URL.' 
+        error: 'Database not available. Please set up DATABASE_URL.',
+        environmentVariables: envVars,
+        message: 'Prisma client was not initialized. Check the logs for details.'
       }, { status: 503 });
     }
 
     // Test database connection
     await prisma.$connect();
     
-    // Try to create a test user
-    const testUser = await prisma.user.upsert({
-      where: { email: 'test@example.com' },
-      update: {},
-      create: {
-        name: 'Test User',
-        email: 'test@example.com',
-      },
-    });
-
-    // Try to create a test ticket
-    const testTicket = await prisma.ticket.upsert({
-      where: { id: 'test-ticket' },
-      update: {},
-      create: {
-        id: 'test-ticket',
-        title: 'Test Ticket',
-        description: 'This is a test ticket to verify database connectivity.',
-        status: 'TO_DO',
-        priority: 'MEDIUM',
-        type: 'TASK',
-        reporterId: testUser.id,
-      },
-    });
+    // Try to count users
+    const userCount = await prisma.user.count();
 
     return NextResponse.json({ 
       success: true, 
       message: 'Database connection successful!',
-      user: testUser,
-      ticket: testTicket
+      userCount,
+      environmentVariables: envVars
     });
     
   } catch (error) {
@@ -50,7 +39,12 @@ export async function GET() {
     return NextResponse.json({ 
       error: 'Database test failed', 
       details: error instanceof Error ? error.message : 'Unknown error',
-      code: error instanceof Error && 'code' in error ? error.code : undefined
+      code: error instanceof Error && 'code' in error ? error.code : undefined,
+      environmentVariables: {
+        hasDATABASE_URL: !!process.env.DATABASE_URL,
+        hasPOSTGRES_URL: !!process.env.POSTGRES_URL,
+        hasPRISMA_DATABASE_URL: !!process.env.PRISMA_DATABASE_URL,
+      }
     }, { status: 500 });
   }
 }
