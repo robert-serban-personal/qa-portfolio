@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { HiTag, HiUser, HiCalendar, HiDotsVertical, HiPaperClip, HiPencil, HiTrash, HiDuplicate } from 'react-icons/hi';
 import { Ticket, TicketPriority, TicketStatus } from '@/lib/types';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { useDraggable } from '@dnd-kit/core';
 
 interface TicketCardProps {
   ticket: Ticket;
@@ -56,14 +55,12 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
     listeners,
     setNodeRef,
     transform,
-    transition,
     isDragging,
-  } = useSortable({ id: ticket.id });
+  } = useDraggable({ id: ticket.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined;
 
   const formatDate = (dateInput: string | Date) => {
     try {

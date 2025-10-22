@@ -260,8 +260,11 @@ export class TicketService {
   }
 
   static async addAttachment(ticketId: string, file: File): Promise<Ticket | null> {
+    console.log('📎 TicketService.addAttachment called:', { ticketId, fileName: file.name });
+    
     return this.fetchWithFallback(
       async () => {
+        console.log('📎 Attempting API attachment upload...');
         // For now, we'll simulate API attachment upload
         // In production, you'd upload to a file storage service and get a URL
         const mockAttachment = {
@@ -273,6 +276,8 @@ export class TicketService {
           uploadedAt: new Date().toISOString(),
         };
         
+        console.log('📎 Created mock attachment:', mockAttachment);
+        
         // Update the ticket with the new attachment
         const response = await fetch(`${API_BASE}/tickets/${ticketId}`, {
           method: 'PUT',
@@ -282,8 +287,16 @@ export class TicketService {
           }),
         });
         
-        if (!response.ok) throw new Error('Failed to add attachment');
+        console.log('📎 API response status:', response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('📎 API error:', errorText);
+          throw new Error('Failed to add attachment');
+        }
+        
         const ticket = await response.json();
+        console.log('📎 API returned ticket:', ticket);
         
         // Update local cache
         const tickets = this.getTicketsFromStorage();
@@ -291,16 +304,21 @@ export class TicketService {
         if (index !== -1) {
           tickets[index] = ticket;
           this.saveTicketsToStorage(tickets);
+          console.log('📎 Updated local cache');
         }
         
         return ticket;
       },
       () => {
+        console.log('📎 Falling back to local storage...');
         // Local storage fallback
         const tickets = this.getTicketsFromStorage();
         const ticketIndex = tickets.findIndex(ticket => ticket.id === ticketId);
 
-        if (ticketIndex === -1) return null;
+        if (ticketIndex === -1) {
+          console.error('📎 Ticket not found in local storage:', ticketId);
+          return null;
+        }
 
         const attachment: Attachment = {
           id: this.generateId(),
@@ -311,6 +329,8 @@ export class TicketService {
           uploadedAt: new Date(),
         };
 
+        console.log('📎 Created local attachment:', attachment);
+
         const updatedTicket: Ticket = {
           ...tickets[ticketIndex],
           attachments: [...tickets[ticketIndex].attachments, attachment],
@@ -319,6 +339,8 @@ export class TicketService {
 
         tickets[ticketIndex] = updatedTicket;
         this.saveTicketsToStorage(tickets);
+        console.log('📎 Updated local storage with attachment');
+        
         return updatedTicket;
       }
     );

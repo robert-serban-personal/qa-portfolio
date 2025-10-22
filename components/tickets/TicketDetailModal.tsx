@@ -139,14 +139,29 @@ export default function TicketDetailModal({
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
+      console.log('📎 Starting file upload:', {
+        fileName: file.name,
+        fileSize: file.size,
+        fileType: file.type,
+        ticketId: currentTicket.id
+      });
+      
       try {
+        console.log('📎 Calling TicketService.addAttachment...');
         const updatedTicket = await TicketService.addAttachment(currentTicket.id, file);
+        console.log('📎 Received updated ticket:', updatedTicket);
+        
         if (updatedTicket) {
+          console.log('📎 Setting currentTicket state...');
           setCurrentTicket(updatedTicket);
+          console.log('📎 Calling onTicketUpdated...');
           onTicketUpdated();
+          console.log('📎 File upload completed successfully');
+        } else {
+          console.error('📎 No updated ticket returned from addAttachment');
         }
       } catch (error) {
-        console.error('Error uploading attachment:', error);
+        console.error('📎 Error uploading attachment:', error);
       }
     }
   };

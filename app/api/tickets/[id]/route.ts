@@ -57,7 +57,7 @@ export async function PUT(
 
     const { id } = await params;
     const body = await request.json();
-    const { title, description, status, priority, type, assigneeId, dueDate, labels } = body;
+    const { title, description, status, priority, type, assigneeId, dueDate, labels, attachments, removeAttachmentId } = body;
 
     // Convert frontend format to database format
     const convertStatus = (status: string): 'TO_DO' | 'IN_PROGRESS' | 'IN_REVIEW' | 'DONE' => {
@@ -108,6 +108,22 @@ export async function PUT(
               where: { name: labelName },
               create: { name: labelName },
             })),
+          },
+        }),
+        ...(attachments && attachments.length > 0 && {
+          attachments: {
+            create: attachments.map((att: any) => ({
+              name: att.name,
+              size: att.size,
+              type: att.type,
+              url: att.url,
+              uploadedAt: new Date(att.uploadedAt),
+            })),
+          },
+        }),
+        ...(removeAttachmentId && {
+          attachments: {
+            delete: { id: removeAttachmentId },
           },
         }),
       },
