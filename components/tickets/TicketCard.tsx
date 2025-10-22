@@ -41,9 +41,18 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
     transition,
   };
 
-  const formatDate = (date: Date) => {
-    console.log('📅 formatDate called with:', date, 'type:', typeof date);
+  const formatDate = (dateInput: string | Date) => {
+    console.log('📅 formatDate called with:', dateInput, 'type:', typeof dateInput);
     try {
+      // Convert string to Date object if needed
+      const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.error('❌ Invalid date after conversion:', dateInput);
+        return 'Invalid Date';
+      }
+      
       const formatted = new Intl.DateTimeFormat('en-US', {
         month: 'short',
         day: 'numeric',
@@ -52,7 +61,7 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
       console.log('✅ formatDate result:', formatted);
       return formatted;
     } catch (error) {
-      console.error('❌ formatDate error:', error, 'date:', date);
+      console.error('❌ formatDate error:', error, 'dateInput:', dateInput);
       return 'Invalid Date';
     }
   };

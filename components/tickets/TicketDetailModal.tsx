@@ -397,7 +397,7 @@ export default function TicketDetailModal({
                   <div>
                     <input
                       type="date"
-                      value={formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : ''}
+                      value={formData.dueDate ? (formData.dueDate instanceof Date ? formData.dueDate.toISOString().split('T')[0] : new Date(formData.dueDate).toISOString().split('T')[0]) : ''}
                       onChange={(e) => {
                         try {
                           const date = e.target.value ? new Date(e.target.value) : undefined;
