@@ -6,7 +6,9 @@ const globalForPrisma = globalThis as unknown as {
 
 // Only create Prisma client if DATABASE_URL is available
 const createPrismaClient = () => {
-  if (!process.env.DATABASE_URL) {
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  
+  if (!databaseUrl) {
     console.warn('DATABASE_URL not found. API routes will use local storage fallback.');
     return null;
   }
