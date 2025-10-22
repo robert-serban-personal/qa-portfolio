@@ -398,7 +398,14 @@ export default function TicketDetailModal({
                     <input
                       type="date"
                       value={formData.dueDate ? formData.dueDate.toISOString().split('T')[0] : ''}
-                      onChange={(e) => handleInputChange('dueDate', e.target.value ? new Date(e.target.value) : undefined)}
+                      onChange={(e) => {
+                        try {
+                          const date = e.target.value ? new Date(e.target.value) : undefined;
+                          handleInputChange('dueDate', date && !isNaN(date.getTime()) ? date : undefined);
+                        } catch {
+                          handleInputChange('dueDate', undefined);
+                        }
+                      }}
                       min={new Date().toISOString().split('T')[0]}
                       className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all cursor-pointer"
                       style={{ colorScheme: 'dark' }}

@@ -49,7 +49,14 @@ export default function TicketCard({ ticket, onClick, onStatusChange }: TicketCa
     }).format(date);
   };
 
-  const isOverdue = ticket.dueDate && new Date() > ticket.dueDate;
+  const isOverdue = ticket.dueDate && (() => {
+    try {
+      const dueDate = new Date(ticket.dueDate);
+      return !isNaN(dueDate.getTime()) && new Date() > dueDate;
+    } catch {
+      return false;
+    }
+  })();
 
   return (
     <motion.div

@@ -33,14 +33,26 @@ export class TicketService {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored).map((ticket: any) => ({
       ...ticket,
-      createdAt: new Date(ticket.createdAt),
-      updatedAt: new Date(ticket.updatedAt),
-      dueDate: ticket.dueDate ? new Date(ticket.dueDate) : undefined,
+      createdAt: this.parseDate(ticket.createdAt),
+      updatedAt: this.parseDate(ticket.updatedAt),
+      dueDate: ticket.dueDate ? this.parseDate(ticket.dueDate) : undefined,
       attachments: ticket.attachments?.map((att: any) => ({
         ...att,
-        uploadedAt: new Date(att.uploadedAt)
+        uploadedAt: this.parseDate(att.uploadedAt)
       })) || [],
     })) : [];
+  }
+
+  private static parseDate(dateString: string | Date): Date {
+    if (!dateString) return new Date();
+    if (dateString instanceof Date) return dateString;
+    
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      console.warn('Invalid date string:', dateString, 'using current date');
+      return new Date();
+    }
+    return date;
   }
 
   private static saveTicketsToStorage(tickets: Ticket[]): void {
