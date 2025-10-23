@@ -1,0 +1,753 @@
+openapi: 3.0.3
+info:
+  title: QA Portfolio Tickets API
+  description: |
+    A comprehensive API for managing tickets in a QA Portfolio application.
+    This API provides endpoints for creating, reading, updating, and deleting tickets,
+    as well as managing users and database operations.
+  version: 1.0.0
+  contact:
+    name: QA Portfolio API Support
+    email: support@qaportfolio.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://robertserban.vercel.app/api
+    description: Production server
+  - url: http://localhost:3000/api
+    description: Development server
+
+paths:
+  # Tickets endpoints
+  /tickets:
+    get:
+      summary: Get all tickets
+      description: Retrieve all tickets with their associated data including assignee, reporter, labels, and attachments
+      tags:
+        - Tickets
+      responses:
+        '200':
+          description: Successfully retrieved all tickets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Ticket'
+              example:
+                - id: "cmh2bsbyb0007p3a0iqipyuot"
+                  title: "Fix login bug"
+                  description: "Users are unable to log in with their credentials"
+                  status: "In Progress"
+                  priority: "High"
+                  type: "Bug"
+                  assignee:
+                    id: "cmh2bgbk60003dltj9vli6s9g"
+                    name: "Jane Smith"
+                    email: "jane@example.com"
+                  reporter:
+                    id: "cmh2bgbk60003dltj9vli6s9g"
+                    name: "John Doe"
+                    email: "john@example.com"
+                  createdAt: "2025-10-22T18:27:19.811Z"
+                  updatedAt: "2025-10-22T20:38:11.610Z"
+                  dueDate: "2025-11-08T00:00:00.000Z"
+                  labels: ["authentication", "critical"]
+                  attachments: []
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new ticket
+      description: Create a new ticket with the provided data
+      tags:
+        - Tickets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTicketRequest'
+            example:
+              title: "Implement dark mode"
+              description: "Add dark mode toggle for better user experience"
+              priority: "Medium"
+              type: "Feature"
+              assigneeId: "cmh2bgbk60003dltj9vli6s9g"
+              dueDate: "2025-12-01T00:00:00.000Z"
+              labels: ["ui", "enhancement"]
+      responses:
+        '200':
+          description: Successfully created ticket
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Bad request - invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service unavailable - database not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /tickets/{id}:
+    get:
+      summary: Get a specific ticket
+      description: Retrieve a single ticket by its ID with all associated data
+      tags:
+        - Tickets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ticket ID
+          schema:
+            type: string
+            example: "cmh2bsbyb0007p3a0iqipyuot"
+      responses:
+        '200':
+          description: Successfully retrieved ticket
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '404':
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Service unavailable - database not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update a ticket
+      description: Update an existing ticket with new data. All fields are optional.
+      tags:
+        - Tickets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ticket ID
+          schema:
+            type: string
+            example: "cmh2bsbyb0007p3a0iqipyuot"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTicketRequest'
+            example:
+              title: "Fix login bug - Updated"
+              description: "Users are unable to log in with their credentials. Need to investigate the authentication flow."
+              status: "In Progress"
+              priority: "Critical"
+              type: "Bug"
+              assigneeId: "cmh2bgbk60003dltj9vli6s9g"
+              dueDate: "2025-11-15T00:00:00.000Z"
+              labels: ["authentication", "critical", "urgent"]
+              attachments:
+                - name: "screenshot.png"
+                  size: 1024000
+                  type: "image/png"
+                  url: "https://example.com/screenshot.png"
+                  uploadedAt: "2025-10-22T20:30:00.000Z"
+              removeAttachmentId: "att123"
+      responses:
+        '200':
+          description: Successfully updated ticket
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ticket'
+        '400':
+          description: Bad request - invalid JSON or data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete a ticket
+      description: Delete a ticket by its ID
+      tags:
+        - Tickets
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ticket ID
+          schema:
+            type: string
+            example: "cmh2bsbyb0007p3a0iqipyuot"
+      responses:
+        '200':
+          description: Successfully deleted ticket
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '404':
+          description: Ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Users endpoints
+  /users:
+    get:
+      summary: Get all users
+      description: Retrieve all users in the system
+      tags:
+        - Users
+      responses:
+        '200':
+          description: Successfully retrieved all users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+              example:
+                - id: "cmh2bgbk60003dltj9vli6s9g"
+                  name: "Jane Smith"
+                  email: "jane@example.com"
+                  avatar: "https://example.com/avatar.jpg"
+                - id: "cmh2bgbk60003dltj9vli6s9h"
+                  name: "John Doe"
+                  email: "john@example.com"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new user
+      description: Create a new user in the system
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              name: "Alice Johnson"
+              email: "alice@example.com"
+              avatar: "https://example.com/alice-avatar.jpg"
+      responses:
+        '200':
+          description: Successfully created user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request - invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # Database management endpoints
+  /test-db:
+    get:
+      summary: Test database connection
+      description: Test the database connection and return connection status
+      tags:
+        - Database
+      responses:
+        '200':
+          description: Database connection successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Database connection successful!"
+                  userCount:
+                    type: integer
+                    example: 5
+                  environmentVariables:
+                    type: object
+                    properties:
+                      hasDATABASE_URL:
+                        type: boolean
+                      hasPOSTGRES_URL:
+                        type: boolean
+                      hasPRISMA_DATABASE_URL:
+                        type: boolean
+                      NODE_ENV:
+                        type: string
+        '500':
+          description: Database connection failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /setup-db:
+    post:
+      summary: Setup database
+      description: Initialize the database with tables and seed data
+      tags:
+        - Database
+      responses:
+        '200':
+          description: Database setup successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Database setup completed successfully"
+        '500':
+          description: Database setup failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /migrate-db:
+    post:
+      summary: Run database migrations
+      description: Execute database migrations to update schema
+      tags:
+        - Database
+      responses:
+        '200':
+          description: Migrations completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Migrations completed successfully"
+        '500':
+          description: Migration failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /debug-db:
+    get:
+      summary: Debug database
+      description: Get debug information about the database connection and environment
+      tags:
+        - Database
+      responses:
+        '200':
+          description: Debug information retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  debug:
+                    type: object
+                    properties:
+                      prismaClient:
+                        type: string
+                        example: "Available"
+                      connectionTest:
+                        type: string
+                        example: "Passed"
+                  environmentVariables:
+                    type: object
+        '500':
+          description: Debug information retrieval failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Ticket:
+      type: object
+      required:
+        - id
+        - title
+        - description
+        - status
+        - priority
+        - type
+        - reporter
+        - createdAt
+        - updatedAt
+        - labels
+        - attachments
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the ticket
+          example: "cmh2bsbyb0007p3a0iqipyuot"
+        title:
+          type: string
+          description: Title of the ticket
+          example: "Fix login bug"
+        description:
+          type: string
+          description: Detailed description of the ticket
+          example: "Users are unable to log in with their credentials"
+        status:
+          $ref: '#/components/schemas/TicketStatus'
+        priority:
+          $ref: '#/components/schemas/TicketPriority'
+        type:
+          $ref: '#/components/schemas/TicketType'
+        assignee:
+          $ref: '#/components/schemas/User'
+          nullable: true
+        reporter:
+          $ref: '#/components/schemas/User'
+        createdAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when ticket was created
+          example: "2025-10-22T18:27:19.811Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when ticket was last updated
+          example: "2025-10-22T20:38:11.610Z"
+        dueDate:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp for ticket due date
+          example: "2025-11-08T00:00:00.000Z"
+          nullable: true
+        labels:
+          type: array
+          items:
+            type: string
+          description: Array of label names
+          example: ["authentication", "critical"]
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attachment'
+          description: Array of file attachments
+
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+          example: "cmh2bgbk60003dltj9vli6s9g"
+        name:
+          type: string
+          description: Full name of the user
+          example: "Jane Smith"
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+          example: "jane@example.com"
+        avatar:
+          type: string
+          format: uri
+          description: URL to user's avatar image
+          example: "https://example.com/avatar.jpg"
+          nullable: true
+
+    Attachment:
+      type: object
+      required:
+        - id
+        - name
+        - size
+        - type
+        - url
+        - uploadedAt
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the attachment
+          example: "att123"
+        name:
+          type: string
+          description: Original filename
+          example: "screenshot.png"
+        size:
+          type: integer
+          description: File size in bytes
+          example: 1024000
+        type:
+          type: string
+          description: MIME type of the file
+          example: "image/png"
+        url:
+          type: string
+          format: uri
+          description: URL to access the file
+          example: "https://example.com/screenshot.png"
+        uploadedAt:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when file was uploaded
+          example: "2025-10-22T20:30:00.000Z"
+
+    TicketStatus:
+      type: string
+      enum:
+        - "To Do"
+        - "In Progress"
+        - "In Review"
+        - "Done"
+      description: Current status of the ticket
+      example: "In Progress"
+
+    TicketPriority:
+      type: string
+      enum:
+        - "Low"
+        - "Medium"
+        - "High"
+        - "Critical"
+      description: Priority level of the ticket
+      example: "High"
+
+    TicketType:
+      type: string
+      enum:
+        - "Bug"
+        - "Feature"
+        - "Task"
+        - "Epic"
+        - "Story"
+      description: Type/category of the ticket
+      example: "Bug"
+
+    CreateTicketRequest:
+      type: object
+      required:
+        - title
+        - description
+        - priority
+        - type
+        - labels
+      properties:
+        title:
+          type: string
+          description: Title of the ticket
+          example: "Implement dark mode"
+        description:
+          type: string
+          description: Detailed description of the ticket
+          example: "Add dark mode toggle for better user experience"
+        priority:
+          $ref: '#/components/schemas/TicketPriority'
+        type:
+          $ref: '#/components/schemas/TicketType'
+        assigneeId:
+          type: string
+          description: ID of the user assigned to this ticket
+          example: "cmh2bgbk60003dltj9vli6s9g"
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp for ticket due date
+          example: "2025-12-01T00:00:00.000Z"
+          nullable: true
+        labels:
+          type: array
+          items:
+            type: string
+          description: Array of label names
+          example: ["ui", "enhancement"]
+
+    UpdateTicketRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Updated title of the ticket
+          example: "Fix login bug - Updated"
+        description:
+          type: string
+          description: Updated description of the ticket
+          example: "Users are unable to log in with their credentials. Need to investigate the authentication flow."
+        status:
+          $ref: '#/components/schemas/TicketStatus'
+        priority:
+          $ref: '#/components/schemas/TicketPriority'
+        type:
+          $ref: '#/components/schemas/TicketType'
+        assigneeId:
+          type: string
+          description: ID of the user assigned to this ticket
+          example: "cmh2bgbk60003dltj9vli6s9g"
+          nullable: true
+        dueDate:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp for ticket due date
+          example: "2025-11-15T00:00:00.000Z"
+          nullable: true
+        labels:
+          type: array
+          items:
+            type: string
+          description: Array of label names
+          example: ["authentication", "critical", "urgent"]
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "screenshot.png"
+              size:
+                type: integer
+                example: 1024000
+              type:
+                type: string
+                example: "image/png"
+              url:
+                type: string
+                example: "https://example.com/screenshot.png"
+              uploadedAt:
+                type: string
+                format: date-time
+                example: "2025-10-22T20:30:00.000Z"
+          description: Array of new attachments to add
+        removeAttachmentId:
+          type: string
+          description: ID of attachment to remove
+          example: "att123"
+
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          description: Full name of the user
+          example: "Alice Johnson"
+        email:
+          type: string
+          format: email
+          description: Email address of the user
+          example: "alice@example.com"
+        avatar:
+          type: string
+          format: uri
+          description: URL to user's avatar image
+          example: "https://example.com/alice-avatar.jpg"
+          nullable: true
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Failed to update ticket"
+        details:
+          type: string
+          description: Additional error details
+          example: "Database connection failed"
+        code:
+          type: string
+          description: Error code (for Prisma errors)
+          example: "P2021"
+        environmentVariables:
+          type: object
+          description: Environment variables status (for database errors)
+        debug:
+          type: object
+          description: Debug information (for database errors)
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Tickets
+    description: Operations related to ticket management
+  - name: Users
+    description: Operations related to user management
+  - name: Database
+    description: Database management and debugging operations
+

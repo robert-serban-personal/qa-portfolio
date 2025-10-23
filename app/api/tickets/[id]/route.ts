@@ -26,45 +26,9 @@ export async function GET(
       return NextResponse.json({ error: 'Ticket not found' }, { status: 404 });
     }
 
-    // Convert database format to frontend format
-    const convertDbStatusToFrontend = (status: string): string => {
-      const statusMap: { [key: string]: string } = {
-        'TO_DO': 'To Do',
-        'IN_PROGRESS': 'In Progress',
-        'IN_REVIEW': 'In Review', 
-        'DONE': 'Done'
-      };
-      return statusMap[status] || status;
-    };
-
-    const convertDbPriorityToFrontend = (priority: string): string => {
-      const priorityMap: { [key: string]: string } = {
-        'LOW': 'Low',
-        'MEDIUM': 'Medium',
-        'HIGH': 'High',
-        'CRITICAL': 'Critical'
-      };
-      return priorityMap[priority] || priority;
-    };
-
-    const convertDbTypeToFrontend = (type: string): string => {
-      const typeMap: { [key: string]: string } = {
-        'BUG': 'Bug',
-        'FEATURE': 'Feature', 
-        'TASK': 'Task',
-        'EPIC': 'Epic',
-        'STORY': 'Story'
-      };
-      return typeMap[type] || type;
-    };
-
     // Convert to frontend format
     const convertedTicket = {
       ...ticket,
-      status: convertDbStatusToFrontend(ticket.status),
-      priority: convertDbPriorityToFrontend(ticket.priority),
-      type: convertDbTypeToFrontend(ticket.type),
-      labels: ticket.labels.map(label => label.name),
       createdAt: ticket.createdAt.toISOString(),
       updatedAt: ticket.updatedAt.toISOString(),
       dueDate: ticket.dueDate ? ticket.dueDate.toISOString() : null,
@@ -85,28 +49,14 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  console.log('PUT /api/tickets/[id] - Starting request');
   try {
     // If no database is available, return error
     if (!prisma) {
-      console.log('PUT /api/tickets/[id] - No Prisma client available');
       return NextResponse.json({ error: 'Database not available' }, { status: 503 });
     }
-    console.log('PUT /api/tickets/[id] - Prisma client is available');
 
-    console.log('PUT /api/tickets/[id] - Extracting params and body');
     const { id } = await params;
-    console.log('PUT /api/tickets/[id] - Ticket ID:', id);
-    
-    let body;
-    try {
-      body = await request.json();
-      console.log('PUT /api/tickets/[id] - Request body:', JSON.stringify(body, null, 2));
-    } catch (parseError) {
-      console.error('PUT /api/tickets/[id] - Error parsing JSON:', parseError);
-      return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
-    }
-    
+    const body = await request.json();
     const { title, description, status, priority, type, assigneeId, dueDate, labels, attachments, removeAttachmentId } = body;
 
     // Convert frontend format to database format
@@ -141,56 +91,42 @@ export async function PUT(
       return typeMap[type] || 'TASK';
     };
 
-    // Prepare update data
-    const updateData: any = {
-      ...(title && { title }),
-      ...(description && { description }),
-      ...(status && { status: convertStatus(status) }),
-      ...(priority && { priority: convertPriority(priority) }),
-      ...(type && { type: convertType(type) }),
-      ...(assigneeId !== undefined && { assigneeId: assigneeId || null }),
-      ...(dueDate && { dueDate: new Date(dueDate) }),
-    };
-
-    // Handle labels separately - delete existing and create new ones
-    if (labels && Array.isArray(labels)) {
-      // First delete all existing labels for this ticket
-      await prisma.ticketLabel.deleteMany({
-        where: { ticketId: id }
-      });
-      
-      // Then create new labels
-      updateData.labels = {
-        create: labels.map((labelName: string) => ({ name: labelName })),
-      };
-    }
-
-    // Handle attachments separately
-    if (attachments && attachments.length > 0) {
-      updateData.attachments = {
-        create: attachments.map((att: any) => ({
-          name: att.name,
-          size: att.size,
-          type: att.type,
-          url: att.url,
-          uploadedAt: new Date(att.uploadedAt),
-        })),
-      };
-    }
-
-    // Handle attachment removal
-    if (removeAttachmentId) {
-      updateData.attachments = {
-        delete: { id: removeAttachmentId },
-      };
-    }
-
-    console.log('PUT /api/tickets/[id] - Update data:', JSON.stringify(updateData, null, 2));
-
-    console.log('PUT /api/tickets/[id] - Starting Prisma update operation');
     const updatedTicket = await prisma.ticket.update({
       where: { id },
-      data: updateData,
+      data: {
+        ...(title && { title }),
+        ...(description && { description }),
+        ...(status && { status: convertStatus(status) }),
+        ...(priority && { priority: convertPriority(priority) }),
+        ...(type && { type: convertType(type) }),
+        ...(assigneeId !== undefined && { assigneeId: assigneeId || null }),
+        ...(dueDate && { dueDate: new Date(dueDate) }),
+        ...(labels && {
+          labels: {
+            set: labels.map((labelName: string) => ({ name: labelName })),
+            connectOrCreate: labels.map((labelName: string) => ({
+              where: { name: labelName },
+              create: { name: labelName },
+            })),
+          },
+        }),
+        ...(attachments && attachments.length > 0 && {
+          attachments: {
+            create: attachments.map((att: any) => ({
+              name: att.name,
+              size: att.size,
+              type: att.type,
+              url: att.url,
+              uploadedAt: new Date(att.uploadedAt),
+            })),
+          },
+        }),
+        ...(removeAttachmentId && {
+          attachments: {
+            delete: { id: removeAttachmentId },
+          },
+        }),
+      },
       include: {
         assignee: true,
         reporter: true,
@@ -198,7 +134,6 @@ export async function PUT(
         attachments: true,
       },
     });
-    console.log('PUT /api/tickets/[id] - Prisma update completed successfully');
 
     // Convert database format to frontend format
     const convertDbStatusToFrontend = (status: string): string => {
@@ -233,7 +168,6 @@ export async function PUT(
     };
 
     // Convert to frontend format
-    console.log('PUT /api/tickets/[id] - Converting to frontend format');
     const convertedTicket = {
       ...updatedTicket,
       status: convertDbStatusToFrontend(updatedTicket.status),
@@ -249,28 +183,10 @@ export async function PUT(
       })),
     };
 
-    console.log('PUT /api/tickets/[id] - Sending successful response');
     return NextResponse.json(convertedTicket);
   } catch (error) {
     console.error('Error updating ticket:', error);
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      code: error instanceof Error && 'code' in error ? error.code : undefined,
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-    
-    // Provide more specific error information
-    if (error instanceof Error && 'code' in error && error.code === 'P2021') {
-      return NextResponse.json({ 
-        error: 'Database tables do not exist. Please run database migrations first.' 
-      }, { status: 503 });
-    }
-    
-    return NextResponse.json({ 
-      error: 'Failed to update ticket', 
-      details: error instanceof Error ? error.message : 'Unknown error',
-      code: error instanceof Error && 'code' in error ? error.code : undefined,
-    }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update ticket' }, { status: 500 });
   }
 }
 

@@ -102,14 +102,24 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
         isDragging ? 'opacity-50' : ''
       }`}
       onClick={onClick}
+      id={`ticket-card-${ticket.id}`}
+      data-testid={`ticket-card-${ticket.id}`}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-white font-semibold text-sm mb-1 line-clamp-2 group-hover:text-emerald-400 transition-colors">
+          <h3 
+            className="text-white font-semibold text-sm mb-1 line-clamp-2 group-hover:text-emerald-400 transition-colors"
+            id={`ticket-title-${ticket.id}`}
+            data-testid={`ticket-title-${ticket.id}`}
+          >
             {ticket.title}
           </h3>
-          <p className="text-slate-400 text-xs line-clamp-2">
+          <p 
+            className="text-slate-400 text-xs line-clamp-2"
+            id={`ticket-description-${ticket.id}`}
+            data-testid={`ticket-description-${ticket.id}`}
+          >
             {ticket.description}
           </p>
         </div>
@@ -120,12 +130,18 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
               setIsMenuOpen(!isMenuOpen);
             }}
             className="text-slate-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+            id={`ticket-menu-button-${ticket.id}`}
+            data-testid={`ticket-menu-button-${ticket.id}`}
           >
             <HiDotsVertical className="w-4 h-4" />
           </button>
           
           {isMenuOpen && (
-            <div className="absolute right-0 top-6 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-10 min-w-[120px]">
+            <div 
+              className="absolute right-0 top-6 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-10 min-w-[120px]"
+              id={`ticket-menu-${ticket.id}`}
+              data-testid={`ticket-menu-${ticket.id}`}
+            >
               <div className="py-1">
                 {onEdit && (
                   <button
@@ -135,6 +151,8 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
                       setIsMenuOpen(false);
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"
+                    id={`ticket-edit-button-${ticket.id}`}
+                    data-testid={`ticket-edit-button-${ticket.id}`}
                   >
                     <HiPencil className="w-4 h-4" />
                     Edit
@@ -148,6 +166,8 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
                       setIsMenuOpen(false);
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 hover:text-white flex items-center gap-2"
+                    id={`ticket-duplicate-button-${ticket.id}`}
+                    data-testid={`ticket-duplicate-button-${ticket.id}`}
                   >
                     <HiDuplicate className="w-4 h-4" />
                     Duplicate
@@ -163,6 +183,8 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
                       setIsMenuOpen(false);
                     }}
                     className="w-full px-3 py-2 text-left text-sm text-red-400 hover:bg-slate-700 hover:text-red-300 flex items-center gap-2"
+                    id={`ticket-delete-button-${ticket.id}`}
+                    data-testid={`ticket-delete-button-${ticket.id}`}
                   >
                     <HiTrash className="w-4 h-4" />
                     Delete
@@ -176,17 +198,29 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
 
       {/* Priority and Status */}
       <div className="flex items-center gap-2 mb-3">
-        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${priorityColors[ticket.priority]}`}>
+        <span 
+          className={`px-2 py-1 rounded-full text-xs font-medium border ${priorityColors[ticket.priority]}`}
+          id={`ticket-priority-${ticket.id}`}
+          data-testid={`ticket-priority-${ticket.id}`}
+        >
           {ticket.priority}
         </span>
-        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusColors[ticket.status]}`}>
+        <span 
+          className={`px-2 py-1 rounded-full text-xs font-medium border ${statusColors[ticket.status]}`}
+          id={`ticket-status-${ticket.id}`}
+          data-testid={`ticket-status-${ticket.id}`}
+        >
           {ticket.status}
         </span>
       </div>
 
       {/* Labels */}
       {ticket.labels.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
+        <div 
+          className="flex flex-wrap gap-1 mb-3"
+          id={`ticket-labels-${ticket.id}`}
+          data-testid={`ticket-labels-${ticket.id}`}
+        >
           {ticket.labels.slice(0, 3).map((label, index) => {
             const labelName = typeof label === 'string' ? label : label.name;
             const labelKey = typeof label === 'string' ? label : label.id || index;
@@ -194,6 +228,8 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
               <span
                 key={labelKey}
                 className="inline-flex items-center gap-1 px-2 py-1 bg-slate-700/50 text-slate-300 rounded text-xs border border-slate-600"
+                id={`ticket-label-${ticket.id}-${index}`}
+                data-testid={`ticket-label-${ticket.id}-${index}`}
               >
                 <HiTag className="w-3 h-3" />
                 {labelName}
@@ -201,7 +237,11 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
             );
           })}
           {ticket.labels.length > 3 && (
-            <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded text-xs border border-slate-600">
+            <span 
+              className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded text-xs border border-slate-600"
+              id={`ticket-labels-more-${ticket.id}`}
+              data-testid={`ticket-labels-more-${ticket.id}`}
+            >
               +{ticket.labels.length - 3}
             </span>
           )}
@@ -210,37 +250,67 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
 
       {/* Assignee - More Prominent */}
       {ticket.assignee && (
-        <div className="mb-3 p-2 bg-slate-700/30 rounded-lg border border-slate-600">
+        <div 
+          className="mb-3 p-2 bg-slate-700/30 rounded-lg border border-slate-600"
+          id={`ticket-assignee-${ticket.id}`}
+          data-testid={`ticket-assignee-${ticket.id}`}
+        >
           <div className="flex items-center gap-2">
             <HiUser className="w-4 h-4 text-emerald-400" />
-            <span className="text-white font-medium text-sm">{ticket.assignee.name}</span>
+            <span 
+              className="text-white font-medium text-sm"
+              id={`ticket-assignee-name-${ticket.id}`}
+              data-testid={`ticket-assignee-name-${ticket.id}`}
+            >
+              {ticket.assignee.name}
+            </span>
           </div>
         </div>
       )}
 
       {/* Footer */}
-      <div className="space-y-2 text-xs">
+      <div 
+        className="space-y-2 text-xs"
+        id={`ticket-footer-${ticket.id}`}
+        data-testid={`ticket-footer-${ticket.id}`}
+      >
         <div className="flex items-center justify-between">
           {ticket.dueDate && (
-            <div className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : 'text-orange-400'}`}>
+            <div 
+              className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : 'text-orange-400'}`}
+              id={`ticket-due-date-${ticket.id}`}
+              data-testid={`ticket-due-date-${ticket.id}`}
+            >
               <HiCalendar className="w-3 h-3" />
               <span className="font-medium">Due: {formatDate(ticket.dueDate)}</span>
             </div>
           )}
           {ticket.attachments.length > 0 && (
-            <div className="flex items-center gap-1 text-blue-400">
+            <div 
+              className="flex items-center gap-1 text-blue-400"
+              id={`ticket-attachments-${ticket.id}`}
+              data-testid={`ticket-attachments-${ticket.id}`}
+            >
               <HiPaperClip className="w-3 h-3" />
               <span className="font-medium">{ticket.attachments.length}</span>
             </div>
           )}
         </div>
-        <div className="text-slate-500 text-right">
+        <div 
+          className="text-slate-500 text-right"
+          id={`ticket-created-date-${ticket.id}`}
+          data-testid={`ticket-created-date-${ticket.id}`}
+        >
           <span>Created: {formatDate(ticket.createdAt)}</span>
         </div>
       </div>
 
       {/* Status Change Dropdown (appears on hover) */}
-      <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div 
+        className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity"
+        id={`ticket-status-dropdown-container-${ticket.id}`}
+        data-testid={`ticket-status-dropdown-container-${ticket.id}`}
+      >
         <select
           value={ticket.status}
           onChange={(e) => {
@@ -250,6 +320,8 @@ export default function TicketCard({ ticket, onClick, onStatusChange, onEdit, on
           onClick={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           className="w-full px-2 py-1 bg-slate-700/50 border border-slate-600 rounded text-xs text-white focus:border-emerald-400 focus:outline-none"
+          id={`ticket-status-dropdown-${ticket.id}`}
+          data-testid={`ticket-status-dropdown-${ticket.id}`}
         >
           <option value="To Do">To Do</option>
           <option value="In Progress">In Progress</option>

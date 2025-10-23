@@ -249,21 +249,39 @@ export default function TicketDetailModal({
   if (!isOpen || !currentTicket) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div 
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      id="ticket-detail-modal-overlay"
+      data-testid="ticket-detail-modal-overlay"
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         className="bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col"
+        id="ticket-detail-modal"
+        data-testid="ticket-detail-modal"
       >
         {/* Header */}
-        <div className="p-6 border-b border-slate-700">
+        <div 
+          className="p-6 border-b border-slate-700"
+          id="ticket-detail-modal-header"
+          data-testid="ticket-detail-modal-header"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h2 className="text-2xl font-bold text-white">
+              <h2 
+                className="text-2xl font-bold text-white"
+                id="ticket-detail-modal-title"
+                data-testid="ticket-detail-modal-title"
+              >
                 {isEditing ? 'Edit Ticket' : 'Ticket Details'}
               </h2>
-              <span className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-sm">
+              <span 
+                className="px-3 py-1 bg-slate-700/50 text-slate-300 rounded-full text-sm"
+                id="ticket-detail-modal-id"
+                data-testid="ticket-detail-modal-id"
+              >
                 #{currentTicket.id.slice(-6)}
               </span>
             </div>
@@ -272,6 +290,8 @@ export default function TicketDetailModal({
                 <button
                   onClick={() => setIsEditing(true)}
                   className="p-2 text-slate-400 hover:text-white transition-colors"
+                  id="ticket-detail-edit-button"
+                  data-testid="ticket-detail-edit-button"
                 >
                   <HiPencil className="w-5 h-5" />
                 </button>
@@ -279,12 +299,16 @@ export default function TicketDetailModal({
               <button
                 onClick={handleDelete}
                 className="p-2 text-slate-400 hover:text-red-400 transition-colors"
+                id="ticket-detail-delete-button"
+                data-testid="ticket-detail-delete-button"
               >
                 <HiTrash className="w-5 h-5" />
               </button>
               <button
                 onClick={onClose}
                 className="p-2 text-slate-400 hover:text-white transition-colors"
+                id="ticket-detail-close-button"
+                data-testid="ticket-detail-close-button"
               >
                 <HiX className="w-6 h-6" />
               </button>
@@ -292,10 +316,18 @@ export default function TicketDetailModal({
           </div>
         </div>
 
-        <div className="p-6 flex-1 overflow-y-auto">
+        <div 
+          className="p-6 flex-1 overflow-y-auto"
+          id="ticket-detail-modal-content"
+          data-testid="ticket-detail-modal-content"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
-            <div className="lg:col-span-2 space-y-6">
+            <div 
+              className="lg:col-span-2 space-y-6"
+              id="ticket-detail-main-content"
+              data-testid="ticket-detail-main-content"
+            >
               {/* Title */}
               <div>
                 <label className="block text-slate-300 mb-2 font-medium">Title</label>
@@ -305,9 +337,17 @@ export default function TicketDetailModal({
                     value={formData.title || ''}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+                    id="ticket-detail-title-input"
+                    data-testid="ticket-detail-title-input"
                   />
                 ) : (
-                  <h3 className="text-xl font-semibold text-white">{currentTicket.title}</h3>
+                  <h3 
+                    className="text-xl font-semibold text-white"
+                    id="ticket-detail-title-display"
+                    data-testid="ticket-detail-title-display"
+                  >
+                    {currentTicket.title}
+                  </h3>
                 )}
               </div>
 
@@ -320,9 +360,15 @@ export default function TicketDetailModal({
                     onChange={(e) => handleInputChange('description', e.target.value)}
                     rows={6}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all resize-none"
+                    id="ticket-detail-description-input"
+                    data-testid="ticket-detail-description-input"
                   />
                 ) : (
-                  <div className="bg-slate-700/30 rounded-lg p-4 text-slate-300 whitespace-pre-wrap">
+                  <div 
+                    className="bg-slate-700/30 rounded-lg p-4 text-slate-300 whitespace-pre-wrap"
+                    id="ticket-detail-description-display"
+                    data-testid="ticket-detail-description-display"
+                  >
                     {currentTicket.description}
                   </div>
                 )}
@@ -341,10 +387,14 @@ export default function TicketDetailModal({
                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddLabel())}
                         className="flex-1 px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
                         placeholder="Add a label..."
+                        id="ticket-detail-label-input"
+                        data-testid="ticket-detail-label-input"
                       />
                       <button
                         onClick={handleAddLabel}
                         className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg transition-colors"
+                        id="ticket-detail-add-label-button"
+                        data-testid="ticket-detail-add-label-button"
                       >
                         <HiPlus className="w-5 h-5" />
                       </button>
@@ -388,7 +438,11 @@ export default function TicketDetailModal({
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div 
+              className="space-y-6"
+              id="ticket-detail-sidebar"
+              data-testid="ticket-detail-sidebar"
+            >
               {/* Status */}
               <div>
                 <label className="block text-slate-300 mb-2 font-medium">Status</label>
@@ -397,6 +451,8 @@ export default function TicketDetailModal({
                     value={formData.status || currentTicket.status}
                     onChange={(e) => handleInputChange('status', e.target.value as TicketStatus)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+                    id="ticket-detail-status-select"
+                    data-testid="ticket-detail-status-select"
                   >
                     <option value="To Do">To Do</option>
                     <option value="In Progress">In Progress</option>
@@ -404,7 +460,11 @@ export default function TicketDetailModal({
                     <option value="Done">Done</option>
                   </select>
                 ) : (
-                  <span className="px-3 py-2 bg-slate-700/50 text-white rounded-lg">
+                  <span 
+                    className="px-3 py-2 bg-slate-700/50 text-white rounded-lg"
+                    id="ticket-detail-status-display"
+                    data-testid="ticket-detail-status-display"
+                  >
                     {currentTicket.status}
                   </span>
                 )}
@@ -418,6 +478,8 @@ export default function TicketDetailModal({
                     value={formData.priority || currentTicket.priority}
                     onChange={(e) => handleInputChange('priority', e.target.value as TicketPriority)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+                    id="ticket-detail-priority-select"
+                    data-testid="ticket-detail-priority-select"
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -425,7 +487,11 @@ export default function TicketDetailModal({
                     <option value="Critical">Critical</option>
                   </select>
                 ) : (
-                  <span className="px-3 py-2 bg-slate-700/50 text-white rounded-lg">
+                  <span 
+                    className="px-3 py-2 bg-slate-700/50 text-white rounded-lg"
+                    id="ticket-detail-priority-display"
+                    data-testid="ticket-detail-priority-display"
+                  >
                     {currentTicket.priority}
                   </span>
                 )}
@@ -439,6 +505,8 @@ export default function TicketDetailModal({
                     value={formData.type || currentTicket.type}
                     onChange={(e) => handleInputChange('type', e.target.value as TicketType)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+                    id="ticket-detail-type-select"
+                    data-testid="ticket-detail-type-select"
                   >
                     <option value="Bug">Bug</option>
                     <option value="Feature">Feature</option>
@@ -447,7 +515,11 @@ export default function TicketDetailModal({
                     <option value="Story">Story</option>
                   </select>
                 ) : (
-                  <span className="px-3 py-2 bg-slate-700/50 text-white rounded-lg">
+                  <span 
+                    className="px-3 py-2 bg-slate-700/50 text-white rounded-lg"
+                    id="ticket-detail-type-display"
+                    data-testid="ticket-detail-type-display"
+                  >
                     {currentTicket.type}
                   </span>
                 )}
@@ -461,6 +533,8 @@ export default function TicketDetailModal({
                     value={formData.assigneeId || ''}
                     onChange={(e) => handleInputChange('assigneeId', e.target.value)}
                     className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+                    id="ticket-detail-assignee-select"
+                    data-testid="ticket-detail-assignee-select"
                   >
                     <option value="">Unassigned</option>
                     {users.map(user => (
@@ -468,7 +542,11 @@ export default function TicketDetailModal({
                     ))}
                   </select>
                 ) : (
-                  <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg">
+                  <div 
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg"
+                    id="ticket-detail-assignee-display"
+                    data-testid="ticket-detail-assignee-display"
+                  >
                     <HiUser className="w-4 h-4 text-slate-400" />
                     <span className="text-white">
                       {currentTicket.assignee ? currentTicket.assignee.name : 'Unassigned'}
@@ -496,11 +574,17 @@ export default function TicketDetailModal({
                       min={new Date().toISOString().split('T')[0]}
                       className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all cursor-pointer"
                       style={{ colorScheme: 'dark' }}
+                      id="ticket-detail-due-date-input"
+                      data-testid="ticket-detail-due-date-input"
                     />
                     <p className="text-slate-500 text-xs mt-1">Select a future date for the ticket deadline</p>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg">
+                  <div 
+                    className="flex items-center gap-2 px-3 py-2 bg-slate-700/50 rounded-lg"
+                    id="ticket-detail-due-date-display"
+                    data-testid="ticket-detail-due-date-display"
+                  >
                     <HiCalendar className="w-4 h-4 text-slate-400" />
                     <span className="text-white">
                       {currentTicket.dueDate ? formatDateOnly(currentTicket.dueDate) : 'No due date'}
@@ -585,17 +669,25 @@ export default function TicketDetailModal({
 
         {/* Action Buttons - Sticky Footer */}
         {isEditing && (
-          <div className="p-6 border-t border-slate-700 bg-slate-800/95 backdrop-blur-sm">
+          <div 
+            className="p-6 border-t border-slate-700 bg-slate-800/95 backdrop-blur-sm"
+            id="ticket-detail-action-buttons"
+            data-testid="ticket-detail-action-buttons"
+          >
             <div className="flex gap-4">
               <button
                 onClick={() => setIsEditing(false)}
                 className="flex-1 px-6 py-3 border border-slate-600 text-slate-300 rounded-lg hover:bg-slate-700 transition-colors"
+                id="ticket-detail-cancel-button"
+                data-testid="ticket-detail-cancel-button"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all duration-300"
+                id="ticket-detail-save-button"
+                data-testid="ticket-detail-save-button"
               >
                 Save Changes
               </button>

@@ -54,20 +54,44 @@ function DroppableColumn({
       className={`bg-slate-800/30 backdrop-blur-sm border border-slate-700 rounded-xl p-4 transition-colors ${
         isOver ? 'bg-slate-700/50 border-emerald-400/50' : ''
       }`}
+      id={`column-${column.status.toLowerCase().replace(' ', '-')}`}
+      data-testid={`column-${column.status.toLowerCase().replace(' ', '-')}`}
     >
       {/* Column Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div 
+        className="flex items-center justify-between mb-4"
+        id={`column-header-${column.status.toLowerCase().replace(' ', '-')}`}
+        data-testid={`column-header-${column.status.toLowerCase().replace(' ', '-')}`}
+      >
         <div className="flex items-center gap-2">
-          <div className={`w-3 h-3 rounded-full ${column.color}`}></div>
-          <h3 className="text-white font-semibold">{column.title}</h3>
+          <div 
+            className={`w-3 h-3 rounded-full ${column.color}`}
+            id={`column-indicator-${column.status.toLowerCase().replace(' ', '-')}`}
+            data-testid={`column-indicator-${column.status.toLowerCase().replace(' ', '-')}`}
+          ></div>
+          <h3 
+            className="text-white font-semibold"
+            id={`column-title-${column.status.toLowerCase().replace(' ', '-')}`}
+            data-testid={`column-title-${column.status.toLowerCase().replace(' ', '-')}`}
+          >
+            {column.title}
+          </h3>
         </div>
-        <span className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded-full text-xs">
+        <span 
+          className="px-2 py-1 bg-slate-700/50 text-slate-400 rounded-full text-xs"
+          id={`column-count-${column.status.toLowerCase().replace(' ', '-')}`}
+          data-testid={`column-count-${column.status.toLowerCase().replace(' ', '-')}`}
+        >
           {tickets.length}
         </span>
       </div>
 
       {/* Tickets */}
-      <div className="space-y-3 min-h-[200px]">
+      <div 
+        className="space-y-3 min-h-[200px]"
+        id={`tickets-container-${column.status.toLowerCase().replace(' ', '-')}`}
+        data-testid={`tickets-container-${column.status.toLowerCase().replace(' ', '-')}`}
+      >
         {tickets.map(ticket => (
           <TicketCard
             key={ticket.id}
@@ -81,7 +105,11 @@ function DroppableColumn({
         ))}
         
         {tickets.length === 0 && (
-          <div className="text-center py-8 text-slate-500">
+          <div 
+            className="text-center py-8 text-slate-500"
+            id={`empty-state-${column.status.toLowerCase().replace(' ', '-')}`}
+            data-testid={`empty-state-${column.status.toLowerCase().replace(' ', '-')}`}
+          >
             <p className="text-sm">No tickets</p>
           </div>
         )}
@@ -278,16 +306,52 @@ export default function TicketBoard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-6 pt-32">
-      <div className="max-w-7xl mx-auto">
+    <div 
+      className="min-h-screen bg-slate-900 p-6 pt-32"
+      id="ticket-board-main"
+      data-testid="ticket-board-main"
+    >
+      <div 
+        className="max-w-7xl mx-auto"
+        id="ticket-board-container"
+        data-testid="ticket-board-container"
+      >
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+        <div 
+          className="mb-8"
+          id="ticket-board-header"
+          data-testid="ticket-board-header"
+        >
+          <div 
+            className="flex items-center justify-between mb-6"
+            id="ticket-board-title-section"
+            data-testid="ticket-board-title-section"
+          >
             <div>
-              <h1 className="text-4xl font-bold text-white mb-2">Ticket Board</h1>
-              <p className="text-slate-400">Manage your QA tickets and track progress</p>
-              <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+              <h1 
+                className="text-4xl font-bold text-white mb-2"
+                id="ticket-board-title"
+                data-testid="ticket-board-title"
+              >
+                Ticket Board
+              </h1>
+              <p 
+                className="text-slate-400"
+                id="ticket-board-subtitle"
+                data-testid="ticket-board-subtitle"
+              >
+                Manage your QA tickets and track progress
+              </p>
+              <div 
+                className="flex items-center gap-2 mt-2 text-xs text-slate-500"
+                id="ticket-board-status"
+                data-testid="ticket-board-status"
+              >
+                <div 
+                  className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"
+                  id="status-indicator"
+                  data-testid="status-indicator"
+                ></div>
                 <span>Auto-updating every 5s</span>
                 <span>•</span>
                 <span>Last update: {lastUpdateTime.toLocaleTimeString()}</span>
@@ -296,6 +360,8 @@ export default function TicketBoard() {
             <button
               onClick={() => setIsCreateModalOpen(true)}
               className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-emerald-500 to-cyan-500 text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 hover:scale-105"
+              id="create-ticket-button"
+              data-testid="create-ticket-button"
             >
               <HiPlus className="w-5 h-5" />
               Create Ticket
@@ -303,7 +369,11 @@ export default function TicketBoard() {
           </div>
 
           {/* Filters */}
-          <div className="flex flex-wrap gap-4 items-center">
+          <div 
+            className="flex flex-wrap gap-4 items-center"
+            id="ticket-filters"
+            data-testid="ticket-filters"
+          >
             <div className="flex-1 min-w-64">
               <div className="relative">
                 <HiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
@@ -313,6 +383,8 @@ export default function TicketBoard() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search tickets..."
                   className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+                  id="search-input"
+                  data-testid="search-input"
                 />
               </div>
             </div>
@@ -321,6 +393,8 @@ export default function TicketBoard() {
               value={filterAssignee}
               onChange={(e) => setFilterAssignee(e.target.value)}
               className="px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+              id="assignee-filter"
+              data-testid="assignee-filter"
             >
               <option value="">All Assignees</option>
               {users.map(user => (
@@ -332,6 +406,8 @@ export default function TicketBoard() {
               value={filterPriority}
               onChange={(e) => setFilterPriority(e.target.value)}
               className="px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-lg text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/20 transition-all"
+              id="priority-filter"
+              data-testid="priority-filter"
             >
               <option value="">All Priorities</option>
               <option value="Low">Low</option>
@@ -343,6 +419,8 @@ export default function TicketBoard() {
             <button
               onClick={loadTickets}
               className="p-2 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-400 hover:text-white hover:border-emerald-400/50 transition-all"
+              id="refresh-button"
+              data-testid="refresh-button"
             >
               <HiRefresh className="w-5 h-5" />
             </button>
@@ -355,7 +433,11 @@ export default function TicketBoard() {
           onDragStart={handleDragStart}
           onDragEnd={handleDragEnd}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            id="ticket-board-columns"
+            data-testid="ticket-board-columns"
+          >
             {statusColumns.map((column, index) => {
               const ticketsInColumn = getTicketsByStatus(column.status);
 
