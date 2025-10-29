@@ -17,11 +17,11 @@ const projects = [
     image: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   },
   {
-    title: 'Python Selenium Automation Suite',
+    title: 'Tickets App Testing Framework',
     description:
-      'Developed robust test automation framework using Python and Selenium WebDriver. Features page object model pattern, data-driven testing, comprehensive reporting, and integration with Jenkins for automated test execution.',
-    technologies: ['Python', 'Selenium', 'Jenkins', 'Git', 'Jira'],
-    githubUrl: 'https://github.com/robertserban/python-selenium-automation',
+      'Comprehensive automated testing framework with 88+ tests covering API, Database, UI, E2E, and Smoke testing. Features Page Object Model pattern, auto-cleanup, detailed HTML reporting, boundary value analysis, state transition testing, and security validation. Includes pytest-based test suites with PostgreSQL integration.',
+    technologies: ['Python', 'Selenium', 'pytest', 'PostgreSQL', 'pytest-html', 'requests'],
+    githubUrl: 'https://github.com/robert-serban-personal/tickets-testing-framework',
     liveUrl: '#',
     image: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
   },
