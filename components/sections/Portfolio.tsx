@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { HiExternalLink, HiCode } from 'react-icons/hi';
+import { useRef, useState } from 'react';
+import { HiChevronDown, HiCode } from 'react-icons/hi';
 import { SiGithub } from 'react-icons/si';
 
 const projects = [
@@ -13,16 +13,16 @@ const projects = [
       'Built comprehensive end-to-end testing framework using Playwright and JavaScript. Implemented automated test cases covering user journeys, cross-browser testing, and API validation with detailed reporting and CI/CD integration.',
     technologies: ['Playwright', 'JavaScript', 'GitHub Actions', 'Postman'],
     githubUrl: 'https://github.com/robertserban/playwright-automation',
-    liveUrl: '#',
+    details: 'A production-ready end-to-end testing solution built with Playwright and JavaScript. The framework implements automated test cases covering complete user journeys, ensuring cross-browser compatibility and API validation. Features comprehensive reporting capabilities and seamless CI/CD integration through GitHub Actions, enabling continuous quality assurance in modern web application development.',
     image: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
   },
   {
     title: 'Tickets App Testing Framework',
     description:
       'Comprehensive automated testing framework with 88+ tests covering API, Database, UI, E2E, and Smoke testing. Features Page Object Model pattern, auto-cleanup, detailed HTML reporting, boundary value analysis, state transition testing, and security validation. Includes pytest-based test suites with PostgreSQL integration.',
-    technologies: ['Python', 'Selenium', 'pytest', 'PostgreSQL', 'pytest-html', 'requests'],
+    technologies: ['Python', 'Selenium', 'pytest', 'PostgreSQL', 'requests', 'Faker'],
     githubUrl: 'https://github.com/robert-serban-personal/tickets-testing-framework',
-    liveUrl: '#',
+    details: 'A professional-grade automated testing framework featuring 88+ comprehensive tests across multiple layers. Built with Python and Selenium using the Page Object Model pattern for maintainability. Includes REST API testing, PostgreSQL database validation, UI automation, end-to-end workflows, and smoke testing. Features automatic test data cleanup, detailed HTML reporting with visual comparisons, and implements industry-standard testing practices including boundary value analysis, state transition testing, and security validation (SQL injection, XSS prevention). Designed for CI/CD integration with pytest-based test execution.',
     image: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
   },
 ];
@@ -30,6 +30,11 @@ const projects = [
 export default function Portfolio() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: '-100px' });
+  const [expandedProject, setExpandedProject] = useState<string | null>(null);
+
+  const toggleDetails = (projectTitle: string) => {
+    setExpandedProject(expandedProject === projectTitle ? null : projectTitle);
+  };
 
   return (
     <section
@@ -112,16 +117,37 @@ export default function Portfolio() {
                     <SiGithub className="w-4 h-4" />
                     Code
                   </a>
-                  <a
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => toggleDetails(project.title)}
                     className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 rounded-lg transition-all duration-300 text-sm font-medium border border-emerald-400/30"
                   >
-                    <HiExternalLink className="w-4 h-4" />
-                    Details
-                  </a>
+                    <span>Details</span>
+                    <HiChevronDown
+                      className={`w-4 h-4 transition-transform duration-300 ${
+                        expandedProject === project.title ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
                 </div>
+
+                {/* Expandable Details Section */}
+                <AnimatePresence>
+                  {expandedProject === project.title && project.details && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-6 pt-4 border-t border-slate-700/50">
+                        <p className="text-slate-300 text-sm leading-relaxed">
+                          {project.details}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Hover glow effect */}
