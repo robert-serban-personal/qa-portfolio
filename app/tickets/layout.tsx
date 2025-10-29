@@ -1,3 +1,5 @@
+import Navigation from '@/components/ui/Navigation';
+
 export default function TicketsLayout({
   children,
 }: {
@@ -5,7 +7,8 @@ export default function TicketsLayout({
 }) {
   return (
     <>
-      <main className="overflow-x-hidden">
+      <Navigation />
+      <main className="overflow-x-hidden pt-20">
         {children}
       </main>
     </>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiDownload, HiMenu, HiX } from 'react-icons/hi';
 
@@ -16,6 +17,7 @@ const navItems = [
 export default function Navigation() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -31,11 +33,26 @@ export default function Navigation() {
       // Handle navigation to pages
       window.location.href = href;
       setMobileMenuOpen(false);
+    } else if (href === '#home') {
+      // Handle Home link - navigate to homepage first if not already there
+      if (pathname !== '/') {
+        window.location.href = '/';
+      } else {
+        // Already on homepage, just scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      setMobileMenuOpen(false);
     } else {
-      // Handle scroll to sections
-      const element = document.querySelector(href);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+      // Handle scroll to sections - only works on homepage
+      if (pathname === '/') {
+        const element = document.querySelector(href);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+          setMobileMenuOpen(false);
+        }
+      } else {
+        // Navigate to homepage first, then scroll after load
+        window.location.href = `/${href}`;
         setMobileMenuOpen(false);
       }
     }
@@ -51,14 +68,21 @@ export default function Navigation() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <motion.div
+            <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent"
+              onClick={() => {
+                if (pathname !== '/') {
+                  window.location.href = '/';
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+              className="text-2xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity cursor-pointer"
             >
               QA Portfolio
-            </motion.div>
+            </motion.button>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
